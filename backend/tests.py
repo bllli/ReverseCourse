@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from django.contrib.auth.models import User
-from backend.models import Course, Article
+from backend.models import Course, Article, CourseGroup
 
 
 class ModelTestCase(TestCase):
@@ -21,6 +21,7 @@ class ModelTestCase(TestCase):
         self.course = self.teacher.course_set.create(detail=self.article)
         self.course.save()
         self.cg = self.course.coursegroup_set.create(name='飞龙在天兴趣小组', creator=self.user)
+        self.cg: CourseGroup
         self.cg.members.add(self.user2, self.user3)
         self.cg.save()
         self.article_g = self.cg.creator.article_set.create(title='飞龙在天组对MOBA类游戏中走位、消耗、补兵的研究成果',

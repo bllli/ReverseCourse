@@ -1,12 +1,10 @@
-from datetime import datetime
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 
 
 class Course(models.Model):
-    url = models.URLField()
+    title = models.CharField(max_length=200)
 
     create_date = models.DateTimeField(default=now)
 
@@ -17,14 +15,13 @@ class Course(models.Model):
     author = models.ForeignKey(User)
 
     def __str__(self):
-        return self.detail.title
+        return self.title
 
     class Meta:
         ordering = ('create_date',)
 
 
 class CourseGroup(models.Model):
-    url = models.URLField()
     name = models.CharField(max_length=100)
 
     belong = models.ForeignKey(Course)
@@ -78,8 +75,6 @@ class Comment(models.Model):
 
 
 class Article(models.Model):
-    url = models.URLField()
-
     title = models.CharField(max_length=200)
     content_md = models.TextField(null=True)
     content_html = models.TextField(null=True)

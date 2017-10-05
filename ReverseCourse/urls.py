@@ -23,6 +23,8 @@ from backend import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'articles', views.ArticleViewSet)
+router.register(r'courses', views.CourseViewSet)
 # router.register(r'usersdemo', views.UserView)
 
 urlpatterns = [
@@ -30,5 +32,5 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name="index.html")),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/', include(router.urls)),
-    url(r'^api/demo', views.UserView.as_view())
+    # url(r'^api/demo', views.UserView.as_view())
 ]
