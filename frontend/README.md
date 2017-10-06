@@ -2,12 +2,23 @@
 
 > A Vue.js project
 
-## Build Setup
-
-``` bash
+## Prepare Setup
+```bash
 # install dependencies
 npm install
 
+sudo npm install gulp -g
+
+npm install semantic-ui --save
+
+cd semantic/
+
+gulp build
+```
+
+## Build Setup
+
+```bash
 # serve with hot reload at localhost:8080
 npm run dev
 
