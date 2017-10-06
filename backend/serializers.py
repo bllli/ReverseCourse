@@ -6,9 +6,11 @@ from backend.models import Article, Course
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    article_set = serializers.PrimaryKeyRelatedField(many=True, queryset=Article.objects.all())
+
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups', 'password')
+        fields = ('url', 'username', 'email', 'groups', 'article_set')
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -42,15 +44,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.SerializerMethodField()
 
-    # belong = serializers.SlugRelatedField(
-    #     slug_field='title',
-    #     queryset=Course.objects.all(),
-    #     required=False
-    # )
     belong = serializers.HyperlinkedRelatedField(
         view_name='course-detail',
         queryset=Course.objects.all()
     )
+
+    author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Article
@@ -62,15 +61,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    # article_set = ArticleSerializer(many=True, read_only=True)
-
     url = serializers.SerializerMethodField()
 
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all(),
-        required=True,
-    )
+    author = serializers.ReadOnlyField(source='author.username')
 
     article_set = ArticleSerializer(many=True, read_only=True)
 
@@ -81,8 +74,3 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         request = self.context['request']
         return reverse('course-detail', kwargs={'pk': obj.pk}, request=request)
-
-    def create(self, validated_data):
-        course = Course.objects.create(**validated_data)
-        course.save()
-        return course

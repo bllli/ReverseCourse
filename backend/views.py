@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 from backend.serializers import UserSerializer, GroupSerializer, ArticleSerializer, CourseSerializer
 from backend.models import Article, Course
+from backend.permissions import IsOwnerOrReadOnly
 
 
 class DefaultMixin(object):
@@ -28,21 +29,19 @@ class DefaultMixin(object):
     max_pagination_by = 100
 
 
-class UserViewSet(DefaultMixin, viewsets.ModelViewSet):
-    """
-    查看、编辑用户的界面
-    """
+class IsOwnerOrReadOnlyMixin(DefaultMixin):
     permission_classes = (
-        permissions.IsAdminUser,
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
     )
+
+
+class UserViewSet(DefaultMixin, viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
 
-class GroupViewSet(DefaultMixin, viewsets.ModelViewSet):
-    """
-    查看、编辑组的界面
-    """
+class GroupViewSet(DefaultMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
@@ -62,12 +61,17 @@ class UserView(APIView):
         return Response(content)
 
 
-class ArticleViewSet(DefaultMixin, viewsets.ModelViewSet):
+class ArticleViewSet(IsOwnerOrReadOnlyMixin, viewsets.ModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
-class CourseViewSet(DefaultMixin, viewsets.ModelViewSet):
-    permission_classes = ()
+
+class CourseViewSet(IsOwnerOrReadOnlyMixin, viewsets.ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
