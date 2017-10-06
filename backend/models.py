@@ -81,8 +81,8 @@ class Article(models.Model):
     content_md = models.TextField(null=True)
     content_html = models.TextField(null=True)
 
-    author = models.ForeignKey(User)
-    belong = models.ForeignKey(Course, null=True, related_name='article_set')
+    author = models.ForeignKey(User, related_name='article_set')
+    belong = models.ForeignKey(Course, related_name='article_set', null=True)
 
     create_date = models.DateTimeField(default=now)
 
