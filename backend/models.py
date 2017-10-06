@@ -11,11 +11,11 @@ class Course(models.Model):
     group_members_min = models.IntegerField(default=1)
     group_members_max = models.IntegerField(default=20)
 
-    detail = models.ForeignKey('Article')
+    # detail = models.ForeignKey('Article')
     author = models.ForeignKey(User)
 
     def __str__(self):
-        return self.title
+        return '<Course: %s by %r>' % (self.title, self.author)
 
     class Meta:
         ordering = ('create_date',)
@@ -70,6 +70,8 @@ class Comment(models.Model):
     star = models.CharField(choices=STARS, max_length=1)
     comment = models.TextField()
 
+    create_date = models.DateTimeField(default=now)
+
     def __str__(self):
         return 'to %r, %s' % (self.article.title, self.star)
 
@@ -80,6 +82,12 @@ class Article(models.Model):
     content_html = models.TextField(null=True)
 
     author = models.ForeignKey(User)
+    belong = models.ForeignKey(Course, null=True, related_name='article_set')
+
+    create_date = models.DateTimeField(default=now)
 
     def add_comment(self, user, star, comment):
         self.comment_set.create(author=user, star=star, comment=comment)
+
+    def __str__(self):
+        return '<Article: %s by %r>' % (self.title, self.author)

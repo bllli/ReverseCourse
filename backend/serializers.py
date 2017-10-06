@@ -40,19 +40,21 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
-    url_field_name = 'url'
-    serializer_url_field = 'url'
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        queryset=User.objects.all(),
-        required=True,
-    )
-
     url = serializers.SerializerMethodField()
+
+    # belong = serializers.SlugRelatedField(
+    #     slug_field='title',
+    #     queryset=Course.objects.all(),
+    #     required=False
+    # )
+    belong = serializers.HyperlinkedRelatedField(
+        view_name='course-detail',
+        queryset=Course.objects.all()
+    )
 
     class Meta:
         model = Article
-        fields = ('url', 'title', 'content_md', 'author')
+        fields = ('url', 'title', 'content_md', 'author', 'belong')
 
     def get_url(self, obj):
         request = self.context['request']
@@ -60,14 +62,27 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    article_set = ArticleSerializer(many=True, read_only=True)
+    # article_set = ArticleSerializer(many=True, read_only=True)
 
     url = serializers.SerializerMethodField()
 
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all(),
+        required=True,
+    )
+
+    article_set = ArticleSerializer(many=True, read_only=True)
+
     class Meta:
         model = Course
-        fields = ('url', 'title', 'article_set')
+        fields = ('url', 'title', 'author', 'article_set')
 
     def get_url(self, obj):
         request = self.context['request']
         return reverse('course-detail', kwargs={'pk': obj.pk}, request=request)
+
+    def create(self, validated_data):
+        course = Course.objects.create(**validated_data)
+        course.save()
+        return course
