@@ -11,10 +11,14 @@ sudo npm install gulp -g
 
 npm install semantic-ui --save
 
+npm run build:dll
+
 cd semantic/
 
 gulp build
 ```
+
+thx [提高 webpack 构建 Vue 项目的速度 ](https://github.com/lin-xin/blog/issues/10)
 
 ## Build Setup
 
