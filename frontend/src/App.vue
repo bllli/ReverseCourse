@@ -5,8 +5,8 @@
   <!--</div>-->
   <div id="app">
     <div class="ui menu">
-      <div class="header item">反转课堂</div>
-      <a class="active item">Link</a>
+      <div class="header item"><router-link to="/">反转课堂</router-link></div>
+      <router-link to="courses" class="item">课程列表</router-link>
       <a class="item">Link</a>
       <div class="ui dropdown item" tabindex="0">
         Dropdown
@@ -32,13 +32,16 @@
         <a class="item">登录/注册</a>
       </div>
     </div>
-    <course-set></course-set>
+    <!--<hello></hello>-->
+    <!--<course-set></course-set>-->
+    <router-view class="view"></router-view>
   </div>
 </template>
 
 <script>
   import $ from 'jquery'
   import CourseSet from './components/CourseSet.vue'
+  import hello from './components/Hello.vue'
 
   const inBrowser = typeof window !== 'undefined'
   if (inBrowser) {
@@ -51,7 +54,7 @@
     mounted: function () {
       $('.ui.dropdown').dropdown()
     },
-    components: {CourseSet}
+    components: {CourseSet, hello}
   }
 </script>
 

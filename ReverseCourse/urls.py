@@ -29,8 +29,8 @@ router.register(r'courses', views.CourseViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', TemplateView.as_view(template_name="index.html")),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/', include(router.urls)),
+    url(r'^.*$', TemplateView.as_view(template_name="index.html")),
     # url(r'^api/demo', views.UserView.as_view())
 ]
