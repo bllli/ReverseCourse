@@ -10,25 +10,17 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     user: {},
-    username: null,
-    password: null,
+    token: null,
     title: ''
   },
   mutations: {
-    [types.LOGIN]: (state, user) => {
-      // console.log('username: ' + user.username + ' password: ' + user.password)
-      localStorage.username = user.username
-      localStorage.password = user.password
-      state.username = user.username
-      state.password = user.password
-      // console.log('state: ')
-      // console.log(state)
+    [types.LOGIN]: (state, data) => {
+      localStorage.token = data
+      state.token = data
     },
     [types.LOGOUT]: (state) => {
-      localStorage.removeItem('username')
-      localStorage.removeItem('password')
-      state.username = null
-      state.password = null
+      localStorage.removeItem('token')
+      state.token = null
     },
     [types.TITLE]: (state, data) => {
       state.title = data

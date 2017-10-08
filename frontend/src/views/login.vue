@@ -56,12 +56,26 @@
     },
     methods: {
       login () {
-        if (this.user.username) {
+        const self = this
+
+        if (this.user.username && this.user.password) {
 //          console.log('username: ' + this.user.username + ' password: ' + this.user.password + ' IN LOGIN VUE')
-          this.$store.commit(types.LOGIN, this.user)
-          let redirect = decodeURIComponent(this.$route.query.redirect || '/')
-          this.$router.push({
-            path: redirect
+          this.axios({
+            method: 'post',
+            url: '/api/token/',
+            data: {
+              username: self.user.username,
+              password: self.user.password
+            }
+          }).then(function (response) {
+            self.$store.commit(types.LOGIN, response.data.token)
+            console.log('token: ', response.data)
+            let redirect = decodeURIComponent(self.$route.query.redirect || '/')
+            self.$router.push({
+              path: redirect
+            })
+          }).catch(function (error) {
+            console.log('error: ', error)
           })
         }
       }

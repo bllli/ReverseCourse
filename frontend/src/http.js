@@ -11,12 +11,14 @@ import router from './router'
 // axios 配置
 axios.defaults.timeout = 5000
 axios.defaults.baseURL = 'http://127.0.0.1:8000'
+axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
-    if (store.state.username) {
-      config.headers.Authorization = 'Basic ' + btoa(`${store.state.username}:${store.state.password}`)
+    if (store.state.token) {
+      config.headers.Authorization = `Token ${store.state.password}`
     }
     // console.log('config: ')
     // console.log(config)

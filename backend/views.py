@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -46,14 +47,15 @@ class IsOwnerOrReadOnlyMixin(DefaultMixin):
 class ObtainExpiringAuthToken(ObtainAuthToken):
     """Create user token"""
 
+    @csrf_exempt
     def post(self, request, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             token, created = Token.objects.get_or_create(user=serializer.validated_data['user'])
 
-            time_now = datetime.datetime.now()
+            time_now = timezone.now()
 
-            if created or token.created < time_now - datetime.timedelta(minutes=EXPIRE_MINUTES):
+            if created or token.created < (time_now - datetime.timedelta(minutes=EXPIRE_MINUTES)):
                 # Update the created time of the token to keep it valid
                 token.delete()
                 token = Token.objects.create(user=serializer.validated_data['user'])

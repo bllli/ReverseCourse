@@ -29,8 +29,8 @@
             <button class="ui button">提交</button>
           </div>
         </div>
-        <a class="item" v-show="username" v-on:click="logout">登出</a>
-        <router-link to="login" class="item" v-show="!username">登录/注册</router-link>
+        <a class="item" v-show="token" v-on:click="logout">登出</a>
+        <router-link to="login" class="item" v-show="!token">登录/注册</router-link>
       </div>
     </div>
     <!--<hello></hello>-->
@@ -60,7 +60,7 @@
     },
     computed: mapState({
       title: state => state.title,
-      username: state => state.username
+      token: state => state.token
     }),
     components: {CourseSet, hello},
     methods: {
