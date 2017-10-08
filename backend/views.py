@@ -1,17 +1,24 @@
+import datetime
+from django.conf import settings
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, mixins, generics
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 
 from backend.serializers import UserSerializer, GroupSerializer, ArticleSerializer, CourseSerializer
 from backend.models import Article, Course
 from backend.permissions import IsOwnerOrReadOnly
+
+EXPIRE_MINUTES = getattr(settings, 'REST_FRAMEWORK_TOKEN_EXPIRE_MINUTES', 1)
 
 
 class DefaultMixin(object):
@@ -34,6 +41,27 @@ class IsOwnerOrReadOnlyMixin(DefaultMixin):
         permissions.IsAuthenticatedOrReadOnly,
         IsOwnerOrReadOnly
     )
+
+
+class ObtainExpiringAuthToken(ObtainAuthToken):
+    """Create user token"""
+
+    def post(self, request, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            token, created = Token.objects.get_or_create(user=serializer.validated_data['user'])
+
+            time_now = datetime.datetime.now()
+
+            if created or token.created < time_now - datetime.timedelta(minutes=EXPIRE_MINUTES):
+                # Update the created time of the token to keep it valid
+                token.delete()
+                token = Token.objects.create(user=serializer.validated_data['user'])
+                token.created = time_now
+                token.save()
+
+            return Response({'token': token.key})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(DefaultMixin, viewsets.ReadOnlyModelViewSet):
