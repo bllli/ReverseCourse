@@ -22,3 +22,6 @@ Django & Vue.js
 
 - 数据展示
   - [ ] 课题中各小组评分汇总
+
+# Thanks
+- [vue + axios 登录](https://github.com/superman66/vue-axios-github)

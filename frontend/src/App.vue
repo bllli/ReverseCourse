@@ -29,7 +29,8 @@
             <button class="ui button">提交</button>
           </div>
         </div>
-        <a class="item">登录/注册</a>
+        <a class="item" v-show="username" v-on:click="logout">登出</a>
+        <router-link to="login" class="item" v-show="!username">登录/注册</router-link>
       </div>
     </div>
     <!--<hello></hello>-->
@@ -40,6 +41,9 @@
 
 <script>
   import $ from 'jquery'
+  import {mapState} from 'vuex'
+
+  import * as types from './store/types'
   import CourseSet from './components/CourseSet.vue'
   import hello from './components/Hello.vue'
 
@@ -54,7 +58,19 @@
     mounted: function () {
       $('.ui.dropdown').dropdown()
     },
-    components: {CourseSet, hello}
+    computed: mapState({
+      title: state => state.title,
+      username: state => state.username
+    }),
+    components: {CourseSet, hello},
+    methods: {
+      logout () {
+        this.$store.commit(types.LOGOUT)
+        this.$router.push({
+          path: '/'
+        })
+      }
+    }
   }
 </script>
 

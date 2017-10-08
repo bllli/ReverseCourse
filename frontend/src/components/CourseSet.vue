@@ -25,14 +25,10 @@
     },
     mounted: function () {
       const self = this
-      this.$http.get('/api/courses/', {
+      this.axios.get('/api/courses/', {
 //        params: {
 //          ID: 12345
 //        }
-        auth: {
-          username: 'superman',
-          password: 'qwer1234'
-        }
       })
       .then(function (response) {
         console.log(response)
