@@ -7,6 +7,13 @@
           登入到反转课堂
         </div>
       </h2>
+      <div class="ui warning message" v-show="login_error">
+        <i class="close icon"></i>
+        <div class="header">
+          账号或密码错误！
+        </div>
+        请检查并重试。如需帮助请邮件联系管理员 me#bllli.cn (# -> @)
+      </div>
       <form class="ui large form" @submit.prevent="login">
         <div>
           <div class="ui stacked segment">
@@ -39,7 +46,8 @@
 <script>
   import * as types from '../store/types'
   import $ from 'jquery'
-
+  /* eslint-disable no-unused-vars */
+  const semantic = require('../../semantic/dist/semantic.js')
   export default {
     name: '',
     data () {
@@ -48,6 +56,7 @@
           username: '',
           password: ''
         },
+        login_error: false,
         msg: ''
       }
     },
@@ -76,6 +85,7 @@
             })
           }).catch(function (error) {
             console.log('error: ', error)
+            self.login_error = true
           })
         }
       }
