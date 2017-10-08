@@ -17,27 +17,30 @@
     name: 'CourseSet',
     data () {
       return {
-        courses: [
-          {
-            title: '测试1',
-            content_md: '123123',
-            author: 'bllli'
-          },
-          {
-            title: '测试2',
-            content_md: '123123',
-            author: 'bllli'
-          },
-          {
-            title: '测试3',
-            content_md: '123123',
-            author: 'teacher'
-          }
-        ]
+        courses: []
       }
     },
     components: {
       Course
+    },
+    mounted: function () {
+      const self = this
+      this.$http.get('/api/courses/', {
+//        params: {
+//          ID: 12345
+//        }
+        auth: {
+          username: 'superman',
+          password: 'qwer1234'
+        }
+      })
+      .then(function (response) {
+        console.log(response)
+        self.courses = response.data.results
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
     }
   }
 </script>

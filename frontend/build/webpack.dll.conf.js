@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    vendor: ['vue/dist/vue.common.js','vue-router', 'jquery', 'vue-resource']
+    vendor: ['vue/dist/vue.common.js','vue-router', 'jquery', 'axios']
   },
   output: {
     path: path.join(__dirname, '../static/js'),
