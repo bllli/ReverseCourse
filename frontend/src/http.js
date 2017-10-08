@@ -16,7 +16,7 @@ axios.defaults.baseURL = 'http://127.0.0.1:8000'
 axios.interceptors.request.use(
   config => {
     if (store.state.username) {
-      config.headers.Authorization = btoa(`${store.state.username}:${store.state.password}`)
+      config.headers.Authorization = 'Basic ' + btoa(`${store.state.username}:${store.state.password}`)
     }
     // console.log('config: ')
     // console.log(config)
@@ -31,6 +31,7 @@ axios.interceptors.request.use(
 // http response 拦截器
 axios.interceptors.response.use(
   response => {
+    // console.log('response: ')
     // console.log(response)
     return response
   },
@@ -40,6 +41,7 @@ axios.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
+        case 403:
           // 401 清除token信息并跳转到登录页面
           store.commit(types.LOGOUT)
           router.replace({
