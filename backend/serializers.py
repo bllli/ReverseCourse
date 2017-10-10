@@ -12,6 +12,8 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
     url = serializers.SerializerMethodField()
 
     belong = serializers.HyperlinkedRelatedField(
@@ -25,7 +27,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Article
-        fields = ('url', 'title', 'content_md', 'author', 'belong')
+        fields = ('id', 'url', 'title', 'content_md', 'author', 'belong')
 
     def get_url(self, obj):
         request = self.context['request']
@@ -33,27 +35,59 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
     url = serializers.SerializerMethodField()
 
     author = serializers.ReadOnlyField(source='author.username')
 
     article_set = ArticleSerializer(many=True, read_only=True)
 
+    detail = ArticleSerializer()
+
     class Meta:
         model = Course
-        fields = ('url', 'title', 'author', 'article_set')
+        fields = ('id', 'url', 'title', 'author', 'article_set', 'detail')
 
     def get_url(self, obj):
         request = self.context['request']
         return reverse('course-detail', kwargs={'pk': obj.pk}, request=request)
 
+    def create(self, validated_data):
+        request = self.context['request']
+        course = Course.objects.create(title=validated_data.get('title'),
+                                       author=request.user)
+        if validated_data.get('detail'):
+            course.detail = Article.objects.create(title=validated_data.get('detail').get('title'),
+                                                   content_md=validated_data.get('detail').get('content_md'),
+                                                   author=request.user)
+            course.save()
+        return course
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title')
+        if instance.detail:
+            instance.detail.title = validated_data.get('detail').get('title')
+            instance.detail.content_md = validated_data.get('detail').get('content_md')
+            instance.detail.belong = None
+            instance.detail.save()
+        else:
+            instance.detail = Article.objects.create(title=validated_data.get('detail').get('title'),
+                                                     content_md=validated_data.get('detail').get('content_md'),
+                                                     author=instance.author)
+        instance.save()
+        return instance
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField()
+
     article_set = ArticleSerializer(many=True, read_only=True)
     course_set = CourseSerializer(many=True, read_only=True)
+
     # article_set = serializers.HyperlinkedRelatedField(view_name='article-detail', read_only=True, many=True)
     # course_set = serializers.HyperlinkedRelatedField(view_name='article-detail', read_only=True, many=True)
 
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups', 'article_set', 'course_set')
+        fields = ('id', 'url', 'username', 'email', 'groups', 'article_set', 'course_set')

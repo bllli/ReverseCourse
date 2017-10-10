@@ -11,7 +11,7 @@ class Course(models.Model):
     group_members_min = models.IntegerField(default=1)
     group_members_max = models.IntegerField(default=20)
 
-    # detail = models.ForeignKey('Article')
+    detail = models.OneToOneField('Article', null=True)
     author = models.ForeignKey(User)
 
     def __str__(self):

@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import CourseSet from './components/CourseSet.vue'
+import Course from './components/Course.vue'
+import Article from './components/Article.vue'
 import hello from './components/Hello.vue'
 import login from './views/login.vue'
 import store from './store/store'
@@ -21,6 +23,22 @@ const routes = [
       requireAuth: true
     },
     component: CourseSet
+  },
+  {
+    path: '/course/:id',
+    name: 'course',
+    meta: {
+      requireAuth: true
+    },
+    component: Course
+  },
+  {
+    path: '/article/:id',
+    name: 'article',
+    meta: {
+      requireAuth: true
+    },
+    component: Article
   },
   {
     path: '/login',

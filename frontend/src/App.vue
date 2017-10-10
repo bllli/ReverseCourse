@@ -6,7 +6,7 @@
   <div id="app">
     <div class="ui menu">
       <div class="header item"><router-link to="/">反转课堂</router-link></div>
-      <router-link to="courses" class="item">课程列表</router-link>
+      <router-link to="/courses" class="item">课程列表</router-link>
       <a class="item">Link</a>
       <div class="ui dropdown item" tabindex="0">
         Dropdown
@@ -76,4 +76,7 @@
 
 <style>
   @import '../semantic/dist/semantic.css';
+  .column {
+    max-width: 600px;
+  }
 </style>
