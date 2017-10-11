@@ -1,6 +1,6 @@
 <template>
   <div class="ui container">
-    <h2 class="ui dividing header">{{ title }}<span class="ui right">by {{ author }}</span></h2>
+    <h2 class="ui dividing header">{{ title }}<div class="sub header">by {{ author }}</div></h2>
     <p>{{ detail.content_md }}</p>
     <div class="ui items">
       <div class="item" v-for="article in article_set">

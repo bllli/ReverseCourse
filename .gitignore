@@ -99,3 +99,11 @@ ENV/
 
 # Idea
 .idea/
+
+# npm packets
+frontend/build/vendor-manifest.json
+frontend/semantic.json
+frontend/static/js/
+
+# my stuff
+demo.html
