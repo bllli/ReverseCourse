@@ -78,7 +78,8 @@
             }
           }).then(function (response) {
             self.$store.commit(types.LOGIN, response.data.token)
-            console.log('token: ', response.data)
+//            console.log('token: ', response.data)
+//            console.log('token in store: ', self.$store.state.token)
             let redirect = decodeURIComponent(self.$route.query.redirect || '/')
             self.$router.push({
               path: redirect

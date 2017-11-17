@@ -58,7 +58,7 @@ class CourseSerializer(serializers.ModelSerializer):
         course = Course.objects.create(title=validated_data.get('title'),
                                        author=request.user)
         if validated_data.get('detail'):
-            course.detail = Article.objects.create(title=validated_data.get('detail').get('title'),
+            course.detail = Article.objects.create(title='%s detail' % course.title,
                                                    content_md=validated_data.get('detail').get('content_md'),
                                                    author=request.user)
             course.save()
@@ -67,12 +67,12 @@ class CourseSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title')
         if instance.detail:
-            instance.detail.title = validated_data.get('detail').get('title')
+            instance.detail.title = '%s detail' % instance.title
             instance.detail.content_md = validated_data.get('detail').get('content_md')
             instance.detail.belong = None
             instance.detail.save()
         else:
-            instance.detail = Article.objects.create(title=validated_data.get('detail').get('title'),
+            instance.detail = Article.objects.create(title='%s detail' % instance.title,
                                                      content_md=validated_data.get('detail').get('content_md'),
                                                      author=instance.author)
         instance.save()

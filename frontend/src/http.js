@@ -18,7 +18,8 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.interceptors.request.use(
   config => {
     if (store.state.token) {
-      config.headers.Authorization = `Token ${store.state.password}`
+      config.headers.Authorization = 'Token ' + store.state.token
+      // console.log('http js ', token)
     }
     // console.log('config: ')
     // console.log(config)
@@ -52,7 +53,8 @@ axios.interceptors.response.use(
           })
       }
     }
-    // console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
+    // console.log(JSON.stringify(error))
+    // console : Error: Request failed with status code 402
     return Promise.reject(error.response.data)
   })
 

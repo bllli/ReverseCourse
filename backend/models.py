@@ -4,32 +4,35 @@ from django.utils.timezone import now
 
 
 class Course(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, verbose_name='课程名称')
 
     create_date = models.DateTimeField(default=now)
 
-    group_members_min = models.IntegerField(default=1)
-    group_members_max = models.IntegerField(default=20)
+    group_members_min = models.IntegerField(default=1, verbose_name='团队成员下限')
+    group_members_max = models.IntegerField(default=20, verbose_name='团队成员上限')
 
-    detail = models.OneToOneField('Article', null=True)
-    author = models.ForeignKey(User)
+    detail = models.OneToOneField('Article', null=True, blank=True, verbose_name='课程详情')
+    author = models.ForeignKey(User, verbose_name='发布者(教师)')
 
     def __str__(self):
-        return '<Course: %s by %r>' % (self.title, self.author)
+        return '课程: %s' % self.title
+
+    def __repr__(self):
+        return '<Course: %s by %s>' % (self.title, self.author)
 
     class Meta:
         ordering = ('create_date',)
 
 
 class CourseGroup(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name='小组名称')
 
-    belong = models.ForeignKey(Course)
+    belong = models.ForeignKey(Course, verbose_name='本组所属课程')
 
-    creator = models.ForeignKey(User, related_name='my_groups')
-    members = models.ManyToManyField(User, related_name='added_groups')
+    creator = models.ForeignKey(User, related_name='my_groups', verbose_name='组长')
+    members = models.ManyToManyField(User, related_name='added_groups', verbose_name='组员')
 
-    locked = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False, verbose_name='锁定')
 
     def __str__(self):
         return self.name
@@ -43,6 +46,7 @@ class CourseGroup(models.Model):
         return False
 
     def in_group(self, user):
+        print(user)
         return user in self.members.all() or user is self.creator
 
     def join(self, user):
@@ -65,10 +69,10 @@ class Comment(models.Model):
         ('4', '四星'),
         ('5', '五星'),
     )
-    author = models.ForeignKey(User)
-    article = models.ForeignKey('Article')
-    star = models.CharField(choices=STARS, max_length=1)
-    comment = models.TextField()
+    author = models.ForeignKey(User, verbose_name='作者')
+    article = models.ForeignKey('Article', verbose_name='所属文章')
+    star = models.CharField(choices=STARS, max_length=1, verbose_name='评价星级')
+    comment = models.TextField(verbose_name='评价内容')
 
     create_date = models.DateTimeField(default=now)
 
@@ -77,11 +81,11 @@ class Comment(models.Model):
 
 
 class Article(models.Model):
-    title = models.CharField(max_length=200)
-    content_md = models.TextField(null=True)
+    title = models.CharField(max_length=200, verbose_name='文章标题')
+    content_md = models.TextField(null=True, verbose_name='文章内容')
     content_html = models.TextField(null=True)
 
-    author = models.ForeignKey(User, related_name='article_set')
+    author = models.ForeignKey(User, related_name='article_set', verbose_name='文章作者')
     belong = models.ForeignKey(Course, related_name='article_set', null=True)
 
     create_date = models.DateTimeField(default=now)
