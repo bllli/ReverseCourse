@@ -20,6 +20,9 @@ from backend import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^base$', views.base),
-    url(r'^$', views.index),
+    url(r'^auth/', include([
+        url(r'^login/$', views.login, name='login'),
+        url(r'^logout/$', views.logout, name='logout'),
+    ]), name='auth'),
+    url(r'^$', views.index, name='index'),
 ]

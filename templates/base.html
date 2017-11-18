@@ -1,3 +1,4 @@
+{% load semanticui %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,8 +11,6 @@
     <meta content="#ffffff" name="theme-color"/>
     <title>{% block title %}你看这个页面没有title{% endblock %}</title>
     <link href="/static/dist/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css"/>
-    <link href="/static/stylesheets/default.css" rel="stylesheet" type="text/css"/>
-    <link href="/static/stylesheets/pandoc-code-highlight.css" rel="stylesheet" type="text/css"/>
     <script src="/static/dist/jquery/jquery.min.js"></script>
     <style type="text/css">
         .site {
@@ -19,6 +18,7 @@
             min-height: 100vh;
             flex-direction: column;
         }
+
         .site_container {
             margin-top: 20px;
             flex: 1;
@@ -28,7 +28,7 @@
 </head>
 <body class="site">
 <div class="ui massive menu">
-    <a class="active item">主页 </a>
+    <a class="active item" href="{% url 'index' %}">主页 </a>
     <a class="item">课程 </a>
     <div class="right menu">
         <div class="item">
@@ -37,22 +37,39 @@
                 <i class="search icon"></i>
             </div>
         </div>
-        <div class="ui dropdown item">语言 <i class="dropdown icon"></i>
-            <div class="menu">
-                <a class="item">英语</a>
-                <a class="item">Russian</a>
-                <a class="item">Spanish</a>
+        {% if not request.user.is_authenticated %}
+            <div class="item">
+                <a class="ui login button" href="{% url 'login' %}">登陆</a>
             </div>
-        </div>
-        <div class="item">
-            <div class="ui button">登录</div>
-        </div>
-        <div class="item">
-            <div class="ui primary button">注册</div>
-        </div>
+            <div class="item">
+                <div class="ui primary button">注册</div>
+            </div>
+        {% else %}
+            <div class="ui dropdown item"> {{ request.user.username }} <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item">个人信息</a>
+                    <a class="item">我的课程</a>
+                    <a class="item">我的团队</a>
+                    <a class="item" href="{% url 'logout' %}">登出</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 <div class="site_container">
+    {% if messages %}
+        <div class="ui center list">
+            {% for message in messages %}
+                <div class="item">
+                    <div class="ui compact message transition">
+                        <i class="close icon"></i>
+                        <p>{{ message }}</p>
+                    </div>
+                </div>
+                {#            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>#}
+            {% endfor %}
+        </div>
+    {% endif %}
     {% block container %}
         <p class="ui large">模板未定义</p>
     {% endblock %}
@@ -94,4 +111,12 @@
     </div>
 </div>
 <script src="/static/dist/semantic-ui/semantic.min.js"></script>
+<script type="text/javascript">
+    $('.message .close').on('click', function () {
+        $(this).closest('.message').transition('fade');
+    });
+    $('.dropdown').dropdown();
+</script>
+{% block js %}
+{% endblock %}
 </body>
