@@ -12,7 +12,6 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -108,3 +107,10 @@ venv.bak/
 # PyCharm
 
 .idea
+
+# database
+
+db.sqlite3
+
+# unless
+*._*

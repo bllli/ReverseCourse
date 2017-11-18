@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=no" name="viewport"/>
+    <meta content="Semantic-UI-Forest, collection of design, themes and templates for Semantic-UI." name="description"/>
+    <meta content="Semantic-UI, Theme, Design, Template" name="keywords"/>
+    <meta content="PPType" name="author"/>
+    <meta content="#ffffff" name="theme-color"/>
+    <title>{% block title %}你看这个页面没有title{% endblock %}</title>
+    <link href="/static/dist/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/stylesheets/default.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/stylesheets/pandoc-code-highlight.css" rel="stylesheet" type="text/css"/>
+    <script src="/static/dist/jquery/jquery.min.js"></script>
+    <style type="text/css">
+        .site {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .site_container {
+            margin-top: 20px;
+            flex: 1;
+        }
+
+    </style>
+</head>
+<body class="site">
+<div class="ui massive menu">
+    <a class="active item">主页 </a>
+    <a class="item">课程 </a>
+    <div class="right menu">
+        <div class="item">
+            <div class="ui icon input">
+                <input type="text" placeholder="搜索课程...">
+                <i class="search icon"></i>
+            </div>
+        </div>
+        <div class="ui dropdown item">语言 <i class="dropdown icon"></i>
+            <div class="menu">
+                <a class="item">英语</a>
+                <a class="item">Russian</a>
+                <a class="item">Spanish</a>
+            </div>
+        </div>
+        <div class="item">
+            <div class="ui button">登录</div>
+        </div>
+        <div class="item">
+            <div class="ui primary button">注册</div>
+        </div>
+    </div>
+</div>
+<div class="site_container">
+    {% block container %}
+        <p class="ui large">模板未定义</p>
+    {% endblock %}
+</div>
+<div class="ui inverted vertical footer segment">
+    <div class="ui container">
+        <div class="ui stackable inverted divided equal height stackable grid">
+            <div class="three wide column">
+                <h4 class="ui inverted header">
+                    About
+                </h4>
+                <div class="ui inverted link list">
+                    <a class="item" href="homepage.html#"> Sitemap</a><a class="item" href="homepage.html#"> Contact
+                    Us</a><a class="item" href="homepage.html#"> Religious Ceremonies</a><a class="item"
+                                                                                            href="homepage.html#">
+                    Gazebo Plans</a>
+                </div>
+            </div>
+            <div class="three wide column">
+                <h4 class="ui inverted header">
+                    Services
+                </h4>
+                <div class="ui inverted link list">
+                    <a class="item" href="homepage.html#"> Banana Pre-Order</a><a class="item"
+                                                                                  href="homepage.html#"> DNA FAQ</a><a
+                        class="item" href="homepage.html#"> How To Access</a><a class="item" href="homepage.html#">
+                    Favorite X-Men</a>
+                </div>
+            </div>
+            <div class="seven wide column">
+                <h4 class="ui inverted header">
+                    Footer Header
+                </h4>
+                <p>
+                    Extra space for a call to action inside the footer that could help re-engage users.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/dist/semantic-ui/semantic.min.js"></script>
+</body>
