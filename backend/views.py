@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.contrib import auth
 from django.contrib import messages
 
-from .models import Article, Course, User
+from .models import Article, Course, User, CourseGroup
 from .forms import LoginForm
 
 
@@ -69,4 +69,22 @@ def user_detail(request, username):
     user = User.objects.filter(username=username).first()
     return render(request, 'user_detail.html', {
         'user': user,
+    })
+
+
+def create_group(request):
+    return
+
+
+def groups(request):
+    group_list = CourseGroup.objects.all()
+    return render(request, 'groups.html', {
+        'groups': group_list,
+    })
+
+
+def group_detail(request, group_id):
+    group = CourseGroup.objects.filter(pk=group_id).first()
+    return render(request, 'group_detail.html', {
+        'group': group
     })

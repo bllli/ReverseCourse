@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }} - 团队 - 翻转课堂{% endblock %}
+
+{% block container %}
+    <div class="ui text container">
+        <div class="ui huge header">学生团队: {{ group.name }}</div>
+        <div class="ui header">
+            <p>所属课题: <a href="{% url 'course' group.belong_id %}">{{ group.belong.title }}</a></p>
+            <p>组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a></p>
+        </div>
+        <div class="ui huge horizontal divided list">
+            {% for member in group.members.all %}
+                <div class="item">
+                    <img class="ui avatar image" src="/static/images/logo.png">
+                    {# ToDo: 日后添加用户头像 #}
+                    <div class="content">
+                        <div class="header">{{ member.username }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

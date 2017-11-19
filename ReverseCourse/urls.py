@@ -27,5 +27,10 @@ urlpatterns = [
     url(r'^courses$', views.courses, name='courses'),
     url(r'^courses/(\d+)/$', views.course, name='course'),
     url(r'^users/(\w+)/$', views.user_detail, name='user_detail'),
+    url(r'^groups/', include([
+        url(r'^create/$', views.create_group, name='create_group'),
+        url(r'^(\d+)/$', views.group_detail, name='group_detail'),
+        url(r'^$', views.groups, name='groups')
+    ]), name='group'),
     url(r'^$', views.index, name='index'),
 ]

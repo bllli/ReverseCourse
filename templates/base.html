@@ -30,9 +30,10 @@
 <div class="ui massive menu">
     <a class="active item" href="{% url 'index' %}">主页 </a>
     <a class="item" href="{% url 'courses' %}">课程 </a>
+    <a class="item" href="{% url 'groups' %}">团队 </a>
     <div class="right menu">
         <div class="item">
-            <div class="ui input">
+            <div class="ui action input">
                 <input id="search" type="text" placeholder="搜索课程..." {% if query %}value="{{ query }}"{% endif %}>
                 <button id="search_icon" class="ui button"><i class="search icon"></i></button>
             </div>
