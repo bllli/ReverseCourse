@@ -4,12 +4,13 @@
 
 {% block container %}
     <div class="ui text container">
-        <div class="ui huge header">学生团队: {{ group.name }}</div>
-        <div class="ui header">
-            <p>所属课题: <a href="{% url 'course' group.belong_id %}">{{ group.belong.title }}</a></p>
-            <p>组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a></p>
-        </div>
-        <div class="ui huge horizontal divided list">
+        <h2 class="ui header">学生团队: {{ group.name }}</h2>
+        <div class="ui divider"></div>
+        <h3 class="ui header">所属课题: <a href="{% url 'course' group.belong.pk %}">{{ group.belong.title }}</a></h3>
+        <h3>组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a></h3>
+        <h3 class="ui header">团队成员</h3>
+        <div class="ui divider"></div>
+        <div class="ui horizontal divided list">
             {% for member in group.members.all %}
                 <div class="item">
                     <img class="ui avatar image" src="/static/images/logo.png">
@@ -20,5 +21,25 @@
                 </div>
             {% endfor %}
         </div>
+        {% if is_creator %}
+            {% if group.members.count < group.belong.group_members_max %}
+                <h3 class="ui header">邀请加入队伍</h3>
+                <div class="ui divider"></div>
+                {% if not users %}<h4 class="ui header">暂无可加入成员</h4>{% endif %}
+                <div class="ui middle aligned divided list">
+                    {% for member in users %}
+                        <div class="item">
+                            <div class="right floated content">
+                                <div class="ui button">邀请</div>
+                            </div>
+                            <img class="ui avatar image" src="/static/images/logo.png"/>
+                            <div class="content">{{ member.username }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <h3 class="ui header">队伍已满</h3>
+            {% endif %}
+        {% endif %}
     </div>
 {% endblock %}

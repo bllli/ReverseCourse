@@ -127,6 +127,9 @@ def groups(request):
 
 def group_detail(request, group_id):
     group = CourseGroup.objects.filter(pk=group_id).first()
-    return render(request, 'group_detail.html', {
-        'group': group
-    })
+    params = {}
+    if request.user.is_authenticated() and request.user == group.creator:
+        params['is_creator'] = True
+        params['users'] = User.objects.exclude(added_groups__belong_id__exact=group.pk).all()
+    params['group'] = group
+    return render(request, 'group_detail.html', params)

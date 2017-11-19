@@ -15,22 +15,30 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+import notifications.urls
 
 from backend import views
 
 urlpatterns = [
+    # Admin
     url(r'^admin/', admin.site.urls),
+    # django-notifications-hq
+    url('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    # auth
     url(r'^auth/', include([
         url(r'^login/$', views.login, name='login'),
         url(r'^logout/$', views.logout, name='logout'),
     ]), name='auth'),
+    # course
     url(r'^courses$', views.courses, name='courses'),
     url(r'^courses/(\d+)/$', views.course, name='course'),
     url(r'^users/(\w+)/$', views.user_detail, name='user_detail'),
+    # group
     url(r'^groups/', include([
         url(r'^create/(\d+)/$', views.create_group, name='create_group'),
         url(r'^(\d+)/$', views.group_detail, name='group_detail'),
         url(r'^$', views.groups, name='groups')
     ]), name='group'),
+    # index
     url(r'^$', views.index, name='index'),
 ]
