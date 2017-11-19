@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - 课程详情 - 翻转课堂{% endblock %}
+
+{% block container %}
+    <div class="ui text container">
+        <div class="ui huge header">{{ course.title }}</div>
+        <div class="ui container">讲师: {{ course.author.username }}</div>
+        <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}课程介绍</div>
+        <p>{{ course.detail.content_md }}</p>
+        <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}教师提供的课程文章</div>
+        {% for article in articles %}
+            <div class="ui piled segment">
+                <div class="ui header">{{ article.title }}</div>
+                <p>{{ article.content_md }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -56,3 +56,11 @@ def courses(request):
         'courses': course_list,
         'query': query,
     })
+
+
+def course(request, course_id):
+    c = Course.objects.filter(pk=course_id).first()
+    return render(request, 'course.html', {
+        'course': c,
+        'articles': c.article_set.all(),
+    })

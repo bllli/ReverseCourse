@@ -25,5 +25,6 @@ urlpatterns = [
         url(r'^logout/$', views.logout, name='logout'),
     ]), name='auth'),
     url(r'^courses$', views.courses, name='courses'),
+    url(r'^courses/(\d+)/$', views.course, name='course'),
     url(r'^$', views.index, name='index'),
 ]

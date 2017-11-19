@@ -8,7 +8,7 @@
         <div class="ui huge header">课程列表</div>
         {% for course in courses.object_list %}
             <div class="ui huge left aligned segment">
-                {{ course.title }}
+                <a href="{% url 'course' course.pk %}">{{ course.title }}</a>
                 <div class="ui right">讲师：{{ course.author.username }}</div>
             </div>
         {% endfor %}

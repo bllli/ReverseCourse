@@ -48,6 +48,9 @@ class ArticleAdmin(SaveModelMixin, admin.ModelAdmin):
         (None, {
             'fields': ('title', 'content_md')
         }),
+        ('进阶', {
+            'fields': ('belong', 'author')
+        })
     )
 
     def get_queryset(self, request):
