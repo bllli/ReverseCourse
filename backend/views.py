@@ -1,11 +1,12 @@
 import json
 
 from django.http import HttpResponse, HttpResponseRedirect
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render
 from django.contrib import auth
 from django.contrib import messages
 
-from .models import Article
+from .models import Article, Course
 from .forms import LoginForm
 
 
@@ -35,3 +36,23 @@ def logout(request):
     messages.success(request, '登出成功, Bye~')
     auth.logout(request)
     return HttpResponseRedirect('/')
+
+
+def courses(request):
+    queryset = Course.objects.all()
+    query = request.GET.get('query') or None
+    if query:
+        queryset = queryset.filter(title__contains=query)
+    p = Paginator(queryset, 5)
+    page = request.GET.get('page') or 1
+    try:
+        course_list = p.page(page)
+    except PageNotAnInteger:
+        course_list = p.page(1)
+    except EmptyPage:
+        course_list = p.page(p.num_pages)
+    print(course_list.number)
+    return render(request, 'courses.html', {
+        'courses': course_list,
+        'query': query,
+    })
