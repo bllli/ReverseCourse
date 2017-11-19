@@ -5,12 +5,13 @@
 {% block container %}
     <div class="ui text container">
         <div class="ui huge header">团队列表</div>
-        {% for group in groups %}
+        {% for group in p.object_list %}
             <div class="ui huge left aligned segment">
                 <a href="{% url 'group_detail' group.pk %}">{{ group.name }}</a>
                 所属课题: <a href="{% url 'course' group.belong_id %}">{{ group.belong.title }}</a>
                 组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a>
             </div>
         {% endfor %}
+        {% include 'paginator.html' %}
     </div>
 {% endblock %}

@@ -6,28 +6,12 @@
     <div class="ui text container">
         {#标题#}
         <div class="ui huge header">课程列表</div>
-        {% for course in courses.object_list %}
+        {% for course in p.object_list %}
             <div class="ui huge left aligned segment">
                 <a href="{% url 'course' course.pk %}">{{ course.title }}</a>
                 <div class="ui right">讲师：{{ course.author.username }}</div>
             </div>
         {% endfor %}
-        {% if not courses.object_list %}
-            <div class="ui negative message">
-                <div class="header">未查询到课程</div>
-                <p>请修改查询条件</p>
-            </div>
-        {% endif %}
-        <div class="ui buttons">
-            {% for page_number in courses.paginator.page_range %}
-                {% ifequal page_number  courses.number %}
-                    <button class="ui disabled button">{{ page_number }}</button>
-                {% else %}
-                    <a href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}">
-                        <button class="ui button">{{ page_number }}</button>
-                    </a>
-                {% endifequal %}
-            {% endfor %}
-        </div>
+        {% include 'paginator.html' %}
     </div>
 {% endblock %}

@@ -34,7 +34,12 @@
     <div class="right menu">
         <div class="item">
             <div class="ui action input">
-                <input id="search" type="text" placeholder="搜索课程..." {% if query %}value="{{ query }}"{% endif %}>
+                <input id="search" type="text" placeholder="搜索课程/团队/用户..." {% if query %}value="{{ query }}"{% endif %}>
+                <select id="search_type" class="ui compact selection dropdown">
+                    <option value="course">课程</option>
+                    <option value="group">团队</option>
+                    <option value="user">用户</option>
+                </select>
                 <button id="search_icon" class="ui button"><i class="search icon"></i></button>
             </div>
         </div>
@@ -120,9 +125,11 @@
 
     function Search() {
         var val = $('#search').val();
-        if (val) {
-            window.location = '/courses?query=' + val;
-        }
+        var search_type = $('#search_type').val();
+        if (!val) {return}
+        if (search_type === 'course') {window.location = '/courses?query=' + val;}
+        else if (search_type === 'group') {window.location = '/groups?query=' + val;}
+        else if (search_type === 'user') {alert('未实现')}
     }
     $('#search_icon').click(Search);
 </script>

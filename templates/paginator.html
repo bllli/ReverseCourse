@@ -1,0 +1,17 @@
+{% if not p.object_list %}
+    <div class="ui negative message">
+        <div class="header">未查询到结果</div>
+        <p>请尝试修改查询条件</p>
+    </div>
+{% endif %}
+<div class="ui buttons">
+    {% for page_number in p.paginator.page_range %}
+        {% ifequal page_number  p.number %}
+            <button class="ui disabled button">{{ page_number }}</button>
+        {% else %}
+            <a href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}">
+                <button class="ui button">{{ page_number }}</button>
+            </a>
+        {% endifequal %}
+    {% endfor %}
+</div>

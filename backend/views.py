@@ -54,7 +54,7 @@ def courses(request):
     except EmptyPage:
         course_list = p.page(p.num_pages)
     return render(request, 'courses.html', {
-        'courses': course_list,
+        'p': course_list,
         'query': query,
     })
 
@@ -104,9 +104,21 @@ def create_group(request, course_id):
 
 
 def groups(request):
-    group_list = CourseGroup.objects.all()
+    queryset = CourseGroup.objects.all()
+    query = request.GET.get('query') or None
+    if query:
+        queryset = queryset.filter(name__contains=query)
+    p = Paginator(queryset, 5)
+    page = request.GET.get('page') or 1
+    try:
+        group_list = p.page(page)
+    except PageNotAnInteger:
+        group_list = p.page(1)
+    except EmptyPage:
+        group_list = p.page(p.num_pages)
     return render(request, 'groups.html', {
-        'groups': group_list,
+        'p': group_list,
+        'query': query,
     })
 
 
