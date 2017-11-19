@@ -4,6 +4,16 @@
 
 {% block container %}
     <div class="ui text container">
-        <div class="ui huge header">{{ user.username }}</div>
+        <h2 class="ui huge header">{{ user.username }}</h2>
+        {% if user.course_set.first %}{# 存在主持的课程时才显示 #}
+            <h3 class="ui header">主持的课程</h3>
+            {% for course in user.course_set.all %}{% include 'pices/course.html' %}{% endfor %}
+        {% endif %}
+        {# 重复了 没啥用 但是挺好看 #}
+        <h3 class="ui header">{% if courses %}参与的课程{% else %}尚未参与任何课程{% endif %}</h3>
+        {% for course in courses %}{% include 'pices/course.html' %}{% endfor %}
+        <div class="ui header divider"></div>
+        <h3 class="ui header">{% if courses %}加入的团队{% else %}尚未加入任何团队{% endif %}</h3>
+        {% for group in user.added_groups.all %}{% include 'pices/group.html' %}{% endfor %}
     </div>
 {% endblock %}

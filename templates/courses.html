@@ -6,12 +6,7 @@
     <div class="ui text container">
         {#标题#}
         <div class="ui huge header">课程列表</div>
-        {% for course in p.object_list %}
-            <div class="ui huge left aligned segment">
-                <a href="{% url 'course' course.pk %}">{{ course.title }}</a>
-                <div class="ui right">讲师：{{ course.author.username }}</div>
-            </div>
-        {% endfor %}
-        {% include 'paginator.html' %}
+        {% for course in p.object_list %}{% include 'pices/course.html' %}{% endfor %}
+        {% include 'pices/paginator.html' %}
     </div>
 {% endblock %}

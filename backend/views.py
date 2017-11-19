@@ -65,7 +65,7 @@ def course(request, course_id):
     if request.user.is_authenticated():
         request.user: User
         current_group = request.user.added_groups.filter(belong=c).first()
-    return render(request, 'course.html', {
+    return render(request, 'course_detail.html', {
         'course': c,
         'articles': c.article_set.all(),
         'group': current_group,
@@ -74,8 +74,11 @@ def course(request, course_id):
 
 def user_detail(request, username):
     user = User.objects.filter(username=username).first()
+    # user: User
+    added_courses = [group.belong for group in user.added_groups.all()]
     return render(request, 'user_detail.html', {
         'user': user,
+        'courses': added_courses,
     })
 
 
