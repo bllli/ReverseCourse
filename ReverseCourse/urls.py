@@ -26,5 +26,6 @@ urlpatterns = [
     ]), name='auth'),
     url(r'^courses$', views.courses, name='courses'),
     url(r'^courses/(\d+)/$', views.course, name='course'),
+    url(r'^users/(\w+)/$', views.user_detail, name='user_detail'),
     url(r'^$', views.index, name='index'),
 ]

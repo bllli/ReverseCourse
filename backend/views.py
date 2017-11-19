@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.contrib import auth
 from django.contrib import messages
 
-from .models import Article, Course
+from .models import Article, Course, User
 from .forms import LoginForm
 
 
@@ -62,4 +62,11 @@ def course(request, course_id):
     return render(request, 'course.html', {
         'course': c,
         'articles': c.article_set.all(),
+    })
+
+
+def user_detail(request, username):
+    user = User.objects.filter(username=username).first()
+    return render(request, 'user_detail.html', {
+        'user': user,
     })

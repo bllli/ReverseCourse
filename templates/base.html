@@ -47,7 +47,7 @@
         {% else %}
             <div class="ui dropdown item"> {{ request.user.username }} <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a class="item">个人信息</a>
+                    <a class="item" href="/users/{{ request.user.username }}/">个人信息</a>
                     <a class="item">我的课程</a>
                     <a class="item">我的团队</a>
                     <a class="item" href="{% url 'logout' %}">登出</a>

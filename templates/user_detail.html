@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ user.username }} - 用户详情 - 翻转课堂{% endblock %}
+
+{% block container %}
+    <div class="ui text container">
+        <div class="ui huge header">{{ user.username }}</div>
+    </div>
+{% endblock %}
