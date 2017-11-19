@@ -51,7 +51,6 @@ def courses(request):
         course_list = p.page(1)
     except EmptyPage:
         course_list = p.page(p.num_pages)
-    print(course_list.number)
     return render(request, 'courses.html', {
         'courses': course_list,
         'query': query,

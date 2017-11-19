@@ -8,6 +8,19 @@
         <div class="ui container">讲师: {{ course.author.username }}</div>
         <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}课程介绍</div>
         <p>{{ course.detail.content_md }}</p>
+        {% if request.user.is_authenticated %}
+            <div class="ui right container">
+                <div class="ui buttons">
+                    <button class="ui positive button">创建团队</button>
+                    <div class="or" data-text="或"></div>
+                    <button class="ui primary button">加入团队</button>
+                </div>
+            </div>
+        {% else %}
+            <div class="ui warning message">登陆后即可组队、参与课程
+                <a href="{% url 'login' %}"><div class="ui blue button">前往登录</div></a>
+            </div>
+        {% endif %}
         <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}教师提供的课程文章</div>
         {% for article in articles %}
             <div class="ui piled segment">
