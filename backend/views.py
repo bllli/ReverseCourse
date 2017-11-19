@@ -130,6 +130,6 @@ def group_detail(request, group_id):
     params = {}
     if request.user.is_authenticated() and request.user == group.creator:
         params['is_creator'] = True
-        params['users'] = User.objects.exclude(added_groups__belong_id__exact=group.pk).all()
+        params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
     params['group'] = group
     return render(request, 'group_detail.html', params)
