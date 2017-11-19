@@ -1,13 +1,14 @@
 import json
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render
 from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from .models import Article, Course, User, CourseGroup
-from .forms import LoginForm
+from .forms import LoginForm, CreateGroupForm
 
 
 def index(request):
@@ -32,6 +33,7 @@ def login(request):
     return render(request, 'login.html', {'login_form': form})
 
 
+@login_required
 def logout(request):
     messages.success(request, '登出成功, Bye~')
     auth.logout(request)
@@ -59,9 +61,14 @@ def courses(request):
 
 def course(request, course_id):
     c = Course.objects.filter(pk=course_id).first()
+    current_group = None
+    if request.user.is_authenticated():
+        request.user: User
+        current_group = request.user.added_groups.filter(belong=c).first()
     return render(request, 'course.html', {
         'course': c,
         'articles': c.article_set.all(),
+        'group': current_group,
     })
 
 
@@ -72,8 +79,28 @@ def user_detail(request, username):
     })
 
 
-def create_group(request):
-    return
+@login_required
+def create_group(request, course_id):
+    form = CreateGroupForm(request.POST or None)
+    try:
+        c = Course.objects.get(pk=course_id)
+        current_group = request.user.added_groups.filter(belong=c).first()
+        if current_group:
+            raise Http404('别瞎试了, 你已经加入一个团队了')
+        if request.POST and form.is_valid():
+            name = request.POST.get('name', None)
+            if not CourseGroup.objects.filter(name=name).all():
+                request.user: User
+                new_group = request.user.my_groups.create(name=name, belong=c)
+                new_group.members.add(request.user)
+                new_group.save()
+                return HttpResponseRedirect('/groups/{g_id}/'.format(g_id=new_group.id))
+            messages.warning(request, '这个名字已经有人捷足先登了，换一个试试吧')
+    except Course.DoesNotExist:
+        raise Http404('如果你正在读这行字，请联系管理员me@bllli.cn')
+    return render(request, 'group_create.html', {
+        'course': c,
+    })
 
 
 def groups(request):

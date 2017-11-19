@@ -9,13 +9,15 @@
         <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}课程介绍</div>
         <p>{{ course.detail.content_md }}</p>
         {% if request.user.is_authenticated %}
-            <div class="ui right container">
+            {% if group %}
+                你已加入<a href="{% url 'group_detail' group.id %}"><div class="ui green button">{{ group.name }}</div></a>
+            {% else %}
                 <div class="ui buttons">
-                    <button class="ui positive button">创建团队</button>
+                    <a href="{% url 'create_group' course.id %}"><button class="ui positive button">创建团队</button></a>
                     <div class="or" data-text="或"></div>
                     <button class="ui primary button">加入团队</button>
                 </div>
-            </div>
+            {% endif %}
         {% else %}
             <div class="ui warning message">登陆后即可组队、参与课程
                 <a href="{% url 'login' %}"><div class="ui blue button">前往登录</div></a>

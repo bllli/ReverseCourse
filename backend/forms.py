@@ -7,3 +7,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(label='密码', widget=forms.PasswordInput())
 
     # def clean(self):
+
+
+class CreateGroupForm(forms.Form):
+    name = forms.CharField(label='团队名', max_length=20)
