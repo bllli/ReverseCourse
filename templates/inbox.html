@@ -18,9 +18,13 @@
                                     <button class="ui button">已读</button>
                                 </a>
                                 <div class="or" data-text="或"></div>
-                                <a href=""><button class="ui positive button">接受</button></a>
+                                <a href="{% url 'accept_invite' un.description %}">
+                                    <button class="ui positive button">接受</button>
+                                </a>
                                 <div class="or" data-text="或"></div>
-                                <button class="ui primary button">拒绝</button>
+                                <a href="{% url 'refuse_invite' un.description %}">
+                                    <button class="ui primary button">拒绝</button>
+                                </a>
                             </div>
                         </div>
                         <div class="content"><i class="mail icon"></i>

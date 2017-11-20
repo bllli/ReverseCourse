@@ -1,3 +1,6 @@
+import string
+import random
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.timezone import now
@@ -95,3 +98,21 @@ class Article(models.Model):
 
     def __str__(self):
         return '<Article: %s by %r>' % (self.title, self.author)
+
+
+class InviteCode(models.Model):
+    code = models.CharField(max_length=10, verbose_name='邀请码')
+    creator = models.ForeignKey(User, related_name='send_code_set', verbose_name='邀请人')
+    invitee = models.ForeignKey(User, related_name='receive_code_set')
+    group = models.ForeignKey(CourseGroup, related_name='code_set', null=True)
+
+    @staticmethod
+    def generate(creator: User, invitee: User, group: CourseGroup):
+        pool_of_chars = string.ascii_letters + string.digits
+        random_code = lambda x, y: ''.join([random.choice(x) for i in range(y)])
+        code = random_code(pool_of_chars, 10)
+        InviteCode.objects.create(creator=creator, invitee=invitee, group=group, code=code)
+        return code
+
+    def check_code(self, invitee):
+        return True if self.invitee == invitee else False

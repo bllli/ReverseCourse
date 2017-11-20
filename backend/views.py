@@ -7,8 +7,9 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from notifications.signals import notify
+from notifications.models import Notification
 
-from .models import Article, Course, User, CourseGroup
+from .models import Article, Course, User, CourseGroup, InviteCode
 from .forms import LoginForm, CreateGroupForm
 
 
@@ -150,21 +151,39 @@ def invite_into_group(request, group_id, invitees_id):
     if invitees in User.objects.filter(added_groups__belong_id=group.belong_id).all():
         messages.error(request, '不好意思啊，你邀请的人已经在同课程中别的群里了。')
     else:
+        invite_code = InviteCode.generate(creator=request.user, invitee=invitees, group=group)
         notify.send(request.user, recipient=invitees,
                     verb='邀请你加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
-                    .format(group=group.name, g_id=group.pk))
+                    .format(group=group.name, g_id=group.pk),
+                    description=invite_code)
         messages.success(request, '邀请{invitees}成功!'.format(invitees=invitees))
     return HttpResponseRedirect('/groups/{group_id}/'.format(group_id=group.pk))
 
 
 @login_required
-def accept_invite():
-    pass
+def accept_invite(request, code):
+    invite_code = get_object_or_404(InviteCode, code=code)
+    notification = get_object_or_404(Notification, recipient=request.user, description=code)
+    if invite_code.check_code(request.user):
+        notification.mark_as_read()
+        if request.user in User.objects.filter(added_groups__belong_id=invite_code.group.belong_id).all():
+            messages.success(request, '你已经加入了本课题下的另一个团队了')
+            return redirect('inbox')
+        invite_code.group.join(request.user)
+        messages.success(request, '已加入{group_name}, 祝你学习愉快!'.format(group_name=invite_code.group.name))
+        return redirect('group_detail', invite_code.group.pk)
+    return Http404('别捣乱')
 
 
 @login_required
-def refuse_invite():
-    pass
+def refuse_invite(request, code):
+    invite_code = get_object_or_404(InviteCode, code=code)
+    notification = get_object_or_404(Notification, recipient=request.user, description=code)
+    if invite_code.check_code(request.user):
+        messages.success(request, '已拒绝加入{group_name}。'.format(group_name=invite_code.group.name))
+        notification.mark_as_read()
+        return redirect('inbox')
+    return Http404('别捣乱')
 
 
 @login_required
