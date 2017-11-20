@@ -11,28 +11,43 @@
         <div class="ui bottom attached tab segment active" data-tab="first">
             <div class="ui middle aligned divided list">
                 {% for un in unread %}
-                    <div class="item">
-                        <div class="right floated content">
-                            <div class="ui buttons">
-                                <a href="{% url 'notifications:mark_as_read' un.slug %}?next={% url 'inbox' %}">
-                                    <button class="ui button">已读</button>
-                                </a>
-                                <div class="or" data-text="或"></div>
-                                <a href="{% url 'accept_invite' un.description %}">
-                                    <button class="ui positive button">接受</button>
-                                </a>
-                                <div class="or" data-text="或"></div>
-                                <a href="{% url 'refuse_invite' un.description %}">
-                                    <button class="ui primary button">拒绝</button>
-                                </a>
+                    {% if un.target %}
+                        <div class="item">
+                            <div class="right floated content">
+                                <div class="ui buttons">
+                                    <a href="{% url 'notifications:mark_as_read' un.slug %}?next={% url 'inbox' %}">
+                                        <button class="ui button">已读</button>
+                                    </a>
+                                    <div class="or" data-text="或"></div>
+                                    <a href="{% url 'accept_invite' un.description %}">
+                                        <button class="ui positive button">接受</button>
+                                    </a>
+                                    <div class="or" data-text="或"></div>
+                                    <a href="{% url 'refuse_invite' un.description %}">
+                                        <button class="ui primary button">拒绝</button>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="content"><i class="mail icon"></i>
+                                <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
+                                {{ un.verb | safe }}({{ un.timesince }} 前)
                             </div>
                         </div>
-                        <div class="content"><i class="mail icon"></i>
-                            <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
-                            {{ un.verb | safe }}
-                            ({{ un.timesince }} 前)
+                    {% else %}
+                        <div class="item">
+                            <div class="right floated content">
+                                <div class="ui buttons">
+                                    <a href="{% url 'notifications:mark_as_read' un.slug %}?next={% url 'inbox' %}">
+                                        <button class="ui button">已读</button>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="content"><i class="mail icon"></i>
+                                <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
+                                {{ un.verb }}: {{ un.description }}  ({{ un.timesince }} 前)
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -47,8 +62,8 @@
                         </div>
                         <div class="content"><i class="mail icon"></i>
                             <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
-                            {{ un.verb | safe }}
-                            ({{ un.timesince }} 前)
+                            {{ un.verb | safe }}:
+                            {% if not un.target %}{{ un.description }}{% endif %}({{ un.timesince }} 前)
                         </div>
                     </div>
                 {% endfor %}

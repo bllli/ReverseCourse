@@ -11,3 +11,7 @@ class LoginForm(forms.Form):
 
 class CreateGroupForm(forms.Form):
     name = forms.CharField(label='团队名', max_length=20)
+
+
+class LetterForm(forms.Form):
+    content = forms.CharField(label='信件内容')

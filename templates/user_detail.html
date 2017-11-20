@@ -5,6 +5,26 @@
 {% block container %}
     <div class="ui text container">
         <h2 class="ui huge header">{{ user.username }}</h2>
+        <div class="ui modal">
+            <i class="close icon"></i>
+            <div class="header">
+                向{{ user.username }}发送站内信
+            </div>
+            <form class="ui form" method="post">
+                {% csrf_token %}
+                <div class="field">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i><input name="content" placeholder="内容" type="text">
+                    </div>
+                </div>
+                <div class="actions">
+                    <div class="ui submit button">OK</div>
+                </div>
+            </form>
+        </div>
+        {% if request.user.is_authenticated and request.user != user %}
+            <button id="send_message" class="ui button">发站内信</button>
+        {% endif %}
         {% if user.course_set.first %}{# 存在主持的课程时才显示 #}
             <h3 class="ui header">主持的课程</h3>
             {% for course in user.course_set.all %}{% include 'pices/course.html' %}{% endfor %}
@@ -16,4 +36,12 @@
         <h3 class="ui header">{% if courses %}加入的团队{% else %}尚未加入任何团队{% endif %}</h3>
         {% for group in user.added_groups.all %}{% include 'pices/group.html' %}{% endfor %}
     </div>
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $('.ui.modal').modal('attach events', '#send_message', 'show');
+        $(".ui.form").form();
+    </script>
 {% endblock %}

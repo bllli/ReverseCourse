@@ -9,8 +9,8 @@ from django.contrib import messages
 from notifications.signals import notify
 from notifications.models import Notification
 
-from .models import Article, Course, User, CourseGroup, InviteCode
-from .forms import LoginForm, CreateGroupForm
+from backend.models import Article, Course, User, CourseGroup, InviteCode
+from backend.forms import LoginForm, CreateGroupForm, LetterForm
 
 
 def index(request):
@@ -75,8 +75,14 @@ def course(request, course_id):
 
 
 def user_detail(request, username):
+    form = LetterForm(request.POST or None)
     user = User.objects.filter(username=username).first()
-    # user: User
+    if request.user.is_authenticated() and form.is_valid():
+        notify.send(request.user, recipient=user,
+                    verb='给你发了一封私信',
+                    description=request.POST.get('content') or None)
+        messages.success(request, '发送成功')
+        return redirect('user_detail', username)
     added_courses = [group.belong for group in user.added_groups.all()]
     return render(request, 'user_detail.html', {
         'user': user,
@@ -151,12 +157,16 @@ def invite_into_group(request, group_id, invitees_id):
     if invitees in User.objects.filter(added_groups__belong_id=group.belong_id).all():
         messages.error(request, '不好意思啊，你邀请的人已经在同课程中别的群里了。')
     else:
-        invite_code = InviteCode.generate(creator=request.user, invitee=invitees, group=group)
-        notify.send(request.user, recipient=invitees,
-                    verb='邀请你加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
-                    .format(group=group.name, g_id=group.pk),
-                    description=invite_code)
-        messages.success(request, '邀请{invitees}成功!'.format(invitees=invitees))
+        if invitees.notifications.filter(actor_object_id=request.user.pk).unread():
+            messages.success(request, '已经邀请过{invitees}，请不要发送多条邀请。'.format(invitees=invitees))
+        else:
+            invite_code = InviteCode.generate(creator=request.user, invitee=invitees, group=group)
+            notify.send(request.user, recipient=invitees,
+                        verb='邀请你加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
+                        .format(group=group.name, g_id=group.pk),
+                        target=group,
+                        description=invite_code)
+            messages.success(request, '邀请{invitees}成功!'.format(invitees=invitees))
     return HttpResponseRedirect('/groups/{group_id}/'.format(group_id=group.pk))
 
 
