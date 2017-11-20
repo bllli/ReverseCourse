@@ -4,25 +4,55 @@
 
 {% block container %}
     <div class="ui text container">
-        <div class="ui middle aligned divided list">
-            {% for un in unread %}
-                <div class="item">
-                    <div class="right floated content">
-                        <div class="ui buttons">
-                            <button class="ui button">已读</button>
-                            <div class="or" data-text="或"></div>
-                            <a href=""><button class="ui positive button">接受</button></a>
-                            <div class="or" data-text="或"></div>
-                            <button class="ui primary button">拒绝</button>
+        <div class="ui top attached tabular menu">
+            <a class="item active" data-tab="first">未读信息</a>
+            <a class="item" data-tab="second">已读信息</a>
+        </div>
+        <div class="ui bottom attached tab segment active" data-tab="first">
+            <div class="ui middle aligned divided list">
+                {% for un in unread %}
+                    <div class="item">
+                        <div class="right floated content">
+                            <div class="ui buttons">
+                                <a href="{% url 'notifications:mark_as_read' un.slug %}?next={% url 'inbox' %}">
+                                    <button class="ui button">已读</button>
+                                </a>
+                                <div class="or" data-text="或"></div>
+                                <a href=""><button class="ui positive button">接受</button></a>
+                                <div class="or" data-text="或"></div>
+                                <button class="ui primary button">拒绝</button>
+                            </div>
+                        </div>
+                        <div class="content"><i class="mail icon"></i>
+                            <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
+                            {{ un.verb | safe }}
+                            ({{ un.timesince }} 前)
                         </div>
                     </div>
-                    <div class="content"><i class="mail icon"></i>
-                        <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
-                        {{ un.verb | safe }}
-                        ({{ un.timesince }} 前)
+                {% endfor %}
+            </div>
+        </div>
+        <div class="ui bottom attached tab segment" data-tab="second">
+            <div class="ui middle aligned divided list">
+                {% for un in read %}
+                    <div class="item">
+                        <div class="right floated content">
+                            <a href="{% url 'notifications:delete' un.slug %}?next={% url 'inbox' %}">
+                                <button class="ui red button">删除</button>
+                            </a>
+                        </div>
+                        <div class="content"><i class="mail icon"></i>
+                            <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
+                            {{ un.verb | safe }}
+                            ({{ un.timesince }} 前)
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">$(document).ready(function () {$('.menu .item').tab();});</script>
 {% endblock %}

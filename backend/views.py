@@ -2,7 +2,7 @@ import json
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -169,7 +169,12 @@ def refuse_invite():
 
 @login_required
 def inbox(request):
-    unread = request.user.notifications.unread()
+    queryset = request.user.notifications
+
+    unread = queryset.unread()
+    read = queryset.read()
+
     return render(request, 'inbox.html', {
         'unread': unread,
+        'read': read,
     })
