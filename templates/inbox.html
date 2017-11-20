@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}收件箱{% endblock %}
+
+{% block container %}
+    <div class="ui text container">
+        <div class="ui middle aligned divided list">
+            {% for un in unread %}
+                <div class="item">
+                    <div class="right floated content">
+                        <div class="ui buttons">
+                            <button class="ui button">已读</button>
+                            <div class="or" data-text="或"></div>
+                            <a href=""><button class="ui positive button">接受</button></a>
+                            <div class="or" data-text="或"></div>
+                            <button class="ui primary button">拒绝</button>
+                        </div>
+                    </div>
+                    <div class="content"><i class="mail icon"></i>
+                        <a href="{% url 'user_detail' un.actor %}" target="_blank">{{ un.actor }}</a>
+                        {{ un.verb | safe }}
+                        ({{ un.timesince }} 前)
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

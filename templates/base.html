@@ -1,3 +1,4 @@
+{% load notifications_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,6 +48,14 @@
                 <div class="ui primary button">注册</div>
             </div>
         {% else %}
+            <div class="item">
+                <a href="{% url 'inbox' %}">
+                    <div class="ui {% if notifications_unread %}red{% endif %} button">
+                        <i class="mail icon"></i>
+                        {% notifications_unread %}
+                    </div>
+                </a>
+            </div>
             <div class="ui dropdown item"> {{ request.user.username }} <i class="dropdown icon"></i>
                 <div class="menu">
                     <a class="item" href="/users/{{ request.user.username }}/">个人信息</a>
@@ -122,11 +131,20 @@
     function Search() {
         var val = $('#search').val();
         var search_type = $('#search_type').val();
-        if (!val) {return}
-        if (search_type === 'course') {window.location = '/courses?query=' + val;}
-        else if (search_type === 'group') {window.location = '/groups?query=' + val;}
-        else if (search_type === 'user') {alert('未实现')}
+        if (!val) {
+            return
+        }
+        if (search_type === 'course') {
+            window.location = '/courses?query=' + val;
+        }
+        else if (search_type === 'group') {
+            window.location = '/groups?query=' + val;
+        }
+        else if (search_type === 'user') {
+            alert('未实现')
+        }
     }
+
     $('#search_icon').click(Search);
 </script>
 {% block js %}

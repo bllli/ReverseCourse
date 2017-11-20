@@ -29,6 +29,10 @@ urlpatterns = [
         url(r'^login/$', views.login, name='login'),
         url(r'^logout/$', views.logout, name='logout'),
     ]), name='auth'),
+    # 站内信
+    url(r'^letter/', include([
+        url(r'^inbox/$', views.inbox, name='inbox'),
+    ])),
     # course
     url(r'^courses$', views.courses, name='courses'),
     url(r'^courses/(\d+)/$', views.course, name='course'),
@@ -39,6 +43,10 @@ urlpatterns = [
         url(r'^(\d+)/$', views.group_detail, name='group_detail'),
         url(r'^$', views.groups, name='groups')
     ]), name='group'),
+    # invite 邀请
+    url(r'^invite/', include([
+        url(r'^(\d+)/(\d+)$', views.invite_into_group, name='invite_into_group'),
+    ])),
     # index
     url(r'^$', views.index, name='index'),
 ]

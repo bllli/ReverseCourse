@@ -30,7 +30,7 @@
                     {% for member in users %}
                         <div class="item">
                             <div class="right floated content">
-                                <div class="ui button">邀请</div>
+                                <a href="/invite/{{ group.pk }}/{{ member.pk }}"><div class="ui button">邀请</div></a>
                             </div>
                             <img class="ui avatar image" src="/static/images/logo.png"/>
                             <div class="content">{{ member.username }}</div>

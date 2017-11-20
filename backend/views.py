@@ -6,6 +6,7 @@ from django.shortcuts import render
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from notifications.signals import notify
 
 from .models import Article, Course, User, CourseGroup
 from .forms import LoginForm, CreateGroupForm
@@ -133,3 +134,42 @@ def group_detail(request, group_id):
         params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
     params['group'] = group
     return render(request, 'group_detail.html', params)
+
+
+@login_required
+def invite_into_group(request, group_id, invitees_id):
+    try:
+        invitees = User.objects.get(pk=invitees_id)
+        group = CourseGroup.objects.get(pk=group_id)
+    except User.DoesNotExist:
+        raise Http404('找不到用户!')
+    except CourseGroup.DoesNotExist:
+        raise Http404('找不到群组')
+    if group.creator != request.user:  # 只有队长才能邀请其他人
+        raise Http404('你谁啊?')
+    if invitees in User.objects.filter(added_groups__belong_id=group.belong_id).all():
+        messages.error(request, '不好意思啊，你邀请的人已经在同课程中别的群里了。')
+    else:
+        notify.send(request.user, recipient=invitees,
+                    verb='邀请你加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
+                    .format(group=group.name, g_id=group.pk))
+        messages.success(request, '邀请{invitees}成功!'.format(invitees=invitees))
+    return HttpResponseRedirect('/groups/{group_id}/'.format(group_id=group.pk))
+
+
+@login_required
+def accept_invite():
+    pass
+
+
+@login_required
+def refuse_invite():
+    pass
+
+
+@login_required
+def inbox(request):
+    unread = request.user.notifications.unread()
+    return render(request, 'inbox.html', {
+        'unread': unread,
+    })
