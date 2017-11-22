@@ -1,6 +1,4 @@
-import json
-
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import Http404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import auth
@@ -9,7 +7,7 @@ from django.contrib import messages
 from notifications.signals import notify
 from notifications.models import Notification
 
-from backend.models import Article, Course, User, CourseGroup, InviteCode
+from backend.models import Course, User, CourseGroup, InviteCode
 from backend.forms import LoginForm, CreateGroupForm, LetterForm
 
 
@@ -20,16 +18,16 @@ def index(request):
 def login(request):
     if request.user.is_authenticated():
         messages.warning(request, '用户 {username}, 你已经登陆'.format(username=request.user.username))
-        return HttpResponseRedirect('/')
+        return redirect('index')
     form = LoginForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
         user = auth.authenticate(username=username, password=password)
         if user and user.is_active:
             auth.login(request, user)
             messages.success(request, '欢迎回来, {username}'.format(username=request.user.username))
-            return HttpResponseRedirect('/')
+            return redirect('index')
         else:
             messages.error(request, '账号或密码错误')
     return render(request, 'login.html', {'login_form': form})
@@ -39,7 +37,7 @@ def login(request):
 def logout(request):
     messages.success(request, '登出成功, Bye~')
     auth.logout(request)
-    return HttpResponseRedirect('/')
+    return redirect('index')
 
 
 def courses(request):
@@ -61,16 +59,12 @@ def courses(request):
     })
 
 
-def course(request, course_id):
-    c = Course.objects.filter(pk=course_id).first()
-    current_group = None
-    if request.user.is_authenticated():
-        request.user: User
-        current_group = request.user.added_groups.filter(belong=c).first()
+def course_detail(request, course_id):
+    c = get_object_or_404(Course, pk=course_id)
     return render(request, 'course_detail.html', {
         'course': c,
         'articles': c.article_set.all(),
-        'group': current_group,
+        'group': request.user.added_groups.filter(belong=c).first() if request.user.is_authenticated() else None,
     })
 
 
@@ -78,9 +72,8 @@ def user_detail(request, username):
     form = LetterForm(request.POST or None)
     user = User.objects.filter(username=username).first()
     if request.user.is_authenticated() and form.is_valid():
-        notify.send(request.user, recipient=user,
-                    verb='给你发了一封私信',
-                    description=request.POST.get('content') or None)
+        notify.send(request.user, recipient=user, verb='给你发了一封私信',
+                    description=form.cleaned_data.get('content', None))
         messages.success(request, '发送成功')
         return redirect('user_detail', username)
     added_courses = [group.belong for group in user.added_groups.all()]
@@ -93,22 +86,18 @@ def user_detail(request, username):
 @login_required
 def create_group(request, course_id):
     form = CreateGroupForm(request.POST or None)
-    try:
-        c = Course.objects.get(pk=course_id)
-        current_group = request.user.added_groups.filter(belong=c).first()
-        if current_group:
-            raise Http404('别瞎试了, 你已经加入一个团队了')
-        if request.POST and form.is_valid():
-            name = request.POST.get('name', None)
-            if not CourseGroup.objects.filter(name=name).all():
-                request.user: User
-                new_group = request.user.my_groups.create(name=name, belong=c)
-                new_group.members.add(request.user)
-                new_group.save()
-                return HttpResponseRedirect('/groups/{g_id}/'.format(g_id=new_group.id))
-            messages.warning(request, '这个名字已经有人捷足先登了，换一个试试吧')
-    except Course.DoesNotExist:
-        raise Http404('如果你正在读这行字，请联系管理员me@bllli.cn')
+    c = get_object_or_404(Course, pk=course_id)
+    if request.user.added_groups.filter(belong=c).first():
+        raise Http404('别瞎试了, 你已经加入一个团队了')
+    if request.POST and form.is_valid():
+        name = form.cleaned_data.get('name', None)
+        if not CourseGroup.objects.filter(name=name).all():
+            new_group = request.user.my_groups.create(name=name, belong=c)
+            new_group.members.add(request.user)
+            new_group.save()
+            return redirect('group_detail', new_group.pk)
+        messages.warning(request, '这个名字已经有人捷足先登了，换一个试试吧')
+
     return render(request, 'group_create.html', {
         'course': c,
     })
@@ -145,13 +134,8 @@ def group_detail(request, group_id):
 
 @login_required
 def invite_into_group(request, group_id, invitees_id):
-    try:
-        invitees = User.objects.get(pk=invitees_id)
-        group = CourseGroup.objects.get(pk=group_id)
-    except User.DoesNotExist:
-        raise Http404('找不到用户!')
-    except CourseGroup.DoesNotExist:
-        raise Http404('找不到群组')
+    invitees = get_object_or_404(User, pk=invitees_id)
+    group = get_object_or_404(CourseGroup, pk=group_id)
     if group.creator != request.user:  # 只有队长才能邀请其他人
         raise Http404('你谁啊?')
     if invitees in User.objects.filter(added_groups__belong_id=group.belong_id).all():
@@ -167,7 +151,7 @@ def invite_into_group(request, group_id, invitees_id):
                         target=group,
                         description=invite_code)
             messages.success(request, '邀请{invitees}成功!'.format(invitees=invitees))
-    return HttpResponseRedirect('/groups/{group_id}/'.format(group_id=group.pk))
+    return redirect('group_detail', group.pk)
 
 
 @login_required
@@ -182,7 +166,7 @@ def accept_invite(request, code):
         invite_code.group.join(request.user)
         messages.success(request, '已加入{group_name}, 祝你学习愉快!'.format(group_name=invite_code.group.name))
         return redirect('group_detail', invite_code.group.pk)
-    return Http404('别捣乱')
+    raise Http404('别捣乱')
 
 
 @login_required
@@ -193,7 +177,7 @@ def refuse_invite(request, code):
         messages.success(request, '已拒绝加入{group_name}。'.format(group_name=invite_code.group.name))
         notification.mark_as_read()
         return redirect('inbox')
-    return Http404('别捣乱')
+    raise Http404('别捣乱')
 
 
 @login_required

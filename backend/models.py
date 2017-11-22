@@ -103,7 +103,7 @@ class Article(models.Model):
 class InviteCode(models.Model):
     code = models.CharField(max_length=10, verbose_name='邀请码')
     creator = models.ForeignKey(User, related_name='send_code_set', verbose_name='邀请人')
-    invitee = models.ForeignKey(User, related_name='receive_code_set')
+    invitee = models.ForeignKey(User, related_name='receive_code_set', verbose_name='受邀人')
     group = models.ForeignKey(CourseGroup, related_name='code_set', null=True)
 
     @staticmethod

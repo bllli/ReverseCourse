@@ -135,10 +135,10 @@
             return
         }
         if (search_type === 'course') {
-            window.location = '/courses?query=' + val;
+            window.location = '/courses/?query=' + val;
         }
         else if (search_type === 'group') {
-            window.location = '/groups?query=' + val;
+            window.location = '/groups/?query=' + val;
         }
         else if (search_type === 'user') {
             alert('未实现')

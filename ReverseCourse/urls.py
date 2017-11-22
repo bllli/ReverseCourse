@@ -34,8 +34,11 @@ urlpatterns = [
         url(r'^inbox/$', views.inbox, name='inbox'),
     ])),
     # course
-    url(r'^courses$', views.courses, name='courses'),
-    url(r'^courses/(\d+)/$', views.course, name='course'),
+    url(r'^courses/', include([
+        url(r'^(\d+)/$', views.course_detail, name='course_detail'),
+        url(r'^$', views.courses, name='courses'),
+    ])),
+    # user
     url(r'^users/(\w+)/$', views.user_detail, name='user_detail'),
     # group
     url(r'^groups/', include([

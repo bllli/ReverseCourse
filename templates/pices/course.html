@@ -1,4 +1,4 @@
 <div class="ui left aligned segment">
-    <a href="{% url 'course' course.pk %}">{{ course.title }}</a>
+    <a href="{% url 'course_detail' course.pk %}">{{ course.title }}</a>
     <div class="ui right">讲师：<a href="{% url 'user_detail' course.author.username %}">{{ course.author.username }}</a></div>
 </div>
