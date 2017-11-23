@@ -1,0 +1,40 @@
+@startuml
+'style options
+skinparam monochrome true
+skinparam circledCharacterRadius 9
+skinparam circledCharacterFontSize 8
+skinparam classAttributeIconSize 0
+hide empty members
+
+entity User < 用户 > << Entity >>{
+    + username  角色名
+}
+
+
+entity Course <课程> << Entity >>{
+    + title 课程题目
+    + group_members_min 团队成员人数下限
+    + group_members_max 团队成员人数上限
+}
+
+Course "*" -- "1" User: 发布
+
+entity Article <文章> << Entity >>{
+    + title 文章标题
+    + content_md 内容
+}
+
+Article "1" -- "1" Course: (属于)课程详情
+Article "*" -- "1" Course: (属于)课程资料
+Article "*" -- "1" User: 发布
+
+entity CourseGroup <团队> << Entity >>{
+    + name 团队名
+    + locked 锁定标记
+}
+
+CourseGroup "*" -- "1" User: 创建
+CourseGroup "m" -- "n" User: 在内
+CourseGroup "*" -- "1" Course: 属于
+
+@enduml
