@@ -1,0 +1,4 @@
+<div class="ui left aligned segment">
+    <a href="{% url 'group_detail' group.pk %}">{{ group.name }}</a>
+    组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a>
+</div>

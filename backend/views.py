@@ -65,6 +65,7 @@ def course_detail(request, course_id):
         'course': c,
         'articles': c.article_set.all(),
         'group': request.user.added_groups.filter(belong=c).first() if request.user.is_authenticated() else None,
+        'groups': c.coursegroup_set.all(),
     })
 
 
