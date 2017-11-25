@@ -89,7 +89,7 @@ class Article(models.Model):
     content_html = models.TextField(null=True)
 
     author = models.ForeignKey(User, related_name='article_set', verbose_name='文章作者')
-    belong = models.ForeignKey(Course, related_name='article_set', null=True)
+    belong = models.ForeignKey(Course, related_name='article_set', null=True, blank=True)
 
     create_date = models.DateTimeField(default=now)
 
@@ -101,18 +101,39 @@ class Article(models.Model):
 
 
 class InviteCode(models.Model):
+    INVITE_USER_JOIN_GROUP = 1  # (团队队长)邀请(教师)加入团队
+    INVITE_TEACHER_JOIN_COURSE = 2  # (课程负责人)邀请(其他教师)加入课程
+    APPLY_JOIN_GROUP = 3
+    APPLY_QUIT_GROUP = 4
+    INVITE = (INVITE_USER_JOIN_GROUP, INVITE_TEACHER_JOIN_COURSE)  # 邀请
+    APPLY = (APPLY_QUIT_GROUP, APPLY_JOIN_GROUP)  # 申请
+    CHOICE = (
+        (INVITE_USER_JOIN_GROUP, '邀请加入团队'),
+        (INVITE_TEACHER_JOIN_COURSE, '邀请管理课程'),
+        (APPLY_JOIN_GROUP, '申请加入团队'),
+        (APPLY_QUIT_GROUP, '申请退出团队'),
+    )
     code = models.CharField(max_length=10, verbose_name='邀请码')
+    choice = models.IntegerField(choices=CHOICE, default=INVITE_USER_JOIN_GROUP)
     creator = models.ForeignKey(User, related_name='send_code_set', verbose_name='邀请人')
     invitee = models.ForeignKey(User, related_name='receive_code_set', verbose_name='受邀人')
+    course = models.ForeignKey(Course, related_name='code_set', null=True)
     group = models.ForeignKey(CourseGroup, related_name='code_set', null=True)
 
     @staticmethod
-    def generate(creator: User, invitee: User, group: CourseGroup):
+    def generate(creator: User, invitee: User, choice: int, group: CourseGroup=None, course: Course=None):
         pool_of_chars = string.ascii_letters + string.digits
         random_code = lambda x, y: ''.join([random.choice(x) for i in range(y)])
         code = random_code(pool_of_chars, 10)
-        InviteCode.objects.create(creator=creator, invitee=invitee, group=group, code=code)
+        InviteCode.objects.create(creator=creator, invitee=invitee,
+                                  group=group, code=code, choice=choice, course=course)
         return code
 
-    def check_code(self, invitee):
-        return True if self.invitee == invitee else False
+    def check_code(self, user: User):
+        """判断使用该邀请码的用户是否有权限
+
+        :argument user: 使用者
+        """
+        return True if (self.choice is InviteCode.INVITE_USER_JOIN_GROUP and user == self.invitee) or \
+                       (self.choice in InviteCode.APPLY and user == self.group.creator) or \
+                       (self.choice is InviteCode.INVITE_TEACHER_JOIN_COURSE and user == self.course.author) else False

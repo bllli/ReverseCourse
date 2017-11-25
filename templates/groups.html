@@ -5,6 +5,11 @@
 {% block container %}
     <div class="ui text container">
         <div class="ui huge header">团队列表</div>
+        {% if course %}
+            <div class="ui header">查询属于<a href="{% url 'course_detail' course.pk %}" target="_blank">《{{ course.title }}》</a>的团队</div>
+        {% elif query %}
+            <div class="ui header">查询关键字为{{ query }}的团队</div>
+        {% endif %}
         {% for group in p.object_list %}{% include 'pices/group.html' %}{% endfor %}
         {% include 'pices/paginator.html' %}
     </div>

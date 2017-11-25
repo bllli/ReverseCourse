@@ -106,8 +106,13 @@ def create_group(request, course_id):
 def groups(request):
     queryset = CourseGroup.objects.all()
     query = request.GET.get('query') or None
+    course_id = request.GET.get('course') or None
+    course = None
     if query:
         queryset = queryset.filter(name__contains=query)
+    elif course_id:
+        course = get_object_or_404(Course, pk=course_id)
+        queryset = queryset.filter(belong=course)
     p = Paginator(queryset, 5)
     page = request.GET.get('page') or 1
     try:
@@ -119,15 +124,19 @@ def groups(request):
     return render(request, 'groups.html', {
         'p': group_list,
         'query': query,
+        'course': course,
     })
 
 
 def group_detail(request, group_id):
     group = CourseGroup.objects.filter(pk=group_id).first()
     params = {}
-    if request.user.is_authenticated() and request.user == group.creator:
-        params['is_creator'] = True
-        params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
+    if request.user.is_authenticated():
+        if request.user == group.creator:
+            params['is_creator'] = True
+            params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
+        if request.user in User.objects.exclude(added_groups__belong_id=group.belong_id).all():
+            params['can_join'] = True
     params['group'] = group
     return render(request, 'group_detail.html', params)
 
@@ -144,7 +153,8 @@ def invite_into_group(request, group_id, invitees_id):
         if invitees.notifications.filter(actor_object_id=request.user.pk).unread():
             messages.success(request, '已经邀请过{invitees}，请不要发送多条邀请。'.format(invitees=invitees))
         else:
-            invite_code = InviteCode.generate(creator=request.user, invitee=invitees, group=group)
+            invite_code = InviteCode.generate(creator=request.user, invitee=invitees,
+                                              group=group, choice=InviteCode.INVITE_USER_JOIN_GROUP)
             notify.send(request.user, recipient=invitees,
                         verb='邀请你加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
                         .format(group=group.name, g_id=group.pk),
@@ -155,17 +165,42 @@ def invite_into_group(request, group_id, invitees_id):
 
 
 @login_required
-def accept_invite(request, code):
-    invite_code = get_object_or_404(InviteCode, code=code)
-    notification = get_object_or_404(Notification, recipient=request.user, description=code)
-    if invite_code.check_code(request.user):
+def apply_into_group(request, group_id):
+    group = get_object_or_404(CourseGroup, pk=group_id)
+    if group in request.user.added_groups.all():
+        messages.error(request, '不好意思啊，你已经在同课程中别的群里了。')
+        return redirect('user_detail', request.user.pk)
+    code = InviteCode.generate(creator=request.user, invitee=group.creator,
+                               group=group, choice=InviteCode.APPLY_JOIN_GROUP)
+    notify.send(request.user, recipient=group.creator,
+                verb='申请加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
+                .format(group=group.name, g_id=group.pk),
+                target=group, description=code)
+    messages.success(request, '申请加入{g_name}成功!'.format(g_name=group.name))
+    return redirect('group_detail', group.pk)
+
+
+@login_required
+def accept_invite(request, str_code: str):
+    code = get_object_or_404(InviteCode, code=str_code)
+    notification = get_object_or_404(Notification, recipient=request.user, description=str_code)
+    if code.check_code(request.user):
         notification.mark_as_read()
-        if request.user in User.objects.filter(added_groups__belong_id=invite_code.group.belong_id).all():
-            messages.success(request, '你已经加入了本课题下的另一个团队了')
-            return redirect('inbox')
-        invite_code.group.join(request.user)
-        messages.success(request, '已加入{group_name}, 祝你学习愉快!'.format(group_name=invite_code.group.name))
-        return redirect('group_detail', invite_code.group.pk)
+        if code.choice is InviteCode.INVITE_USER_JOIN_GROUP:
+            if request.user in User.objects.filter(added_groups__belong=code.group.belong).all():
+                messages.success(request, '你已经加入了本课题下的另一个团队了')
+                return redirect('inbox')
+            code.group.join(request.user)
+            messages.success(request, '已加入{group_name}, 祝你学习愉快!'.format(group_name=code.group.name))
+            return redirect('group_detail', code.group.pk)
+        elif code.choice in InviteCode.APPLY:  # 申请类型code
+            if code.choice is InviteCode.APPLY_QUIT_GROUP:
+                code.group.leave(code.creator)
+                messages.success(request, '你已同意{user}退出{group}'.format(user=code.creator, group=code.group))
+            elif code.choice is InviteCode.APPLY_JOIN_GROUP:
+                code.group.join(code.creator)
+                messages.success(request, '你已同意{user}加入{group}'.format(user=code.creator, group=code.group))
+        return redirect('inbox')
     raise Http404('别捣乱')
 
 
@@ -174,7 +209,7 @@ def refuse_invite(request, code):
     invite_code = get_object_or_404(InviteCode, code=code)
     notification = get_object_or_404(Notification, recipient=request.user, description=code)
     if invite_code.check_code(request.user):
-        messages.success(request, '已拒绝加入{group_name}。'.format(group_name=invite_code.group.name))
+        messages.success(request, '已拒绝')
         notification.mark_as_read()
         return redirect('inbox')
     raise Http404('别捣乱')

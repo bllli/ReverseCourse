@@ -21,8 +21,8 @@
                 </div>
             {% endfor %}
         </div>
-        {% if is_creator %}
-            {% if group.members.count < group.belong.group_members_max %}
+        {% if group.members.count < group.belong.group_members_max %}
+            {% if is_creator %}
                 <h3 class="ui header">邀请加入队伍</h3>
                 <div class="ui divider"></div>
                 {% if not users %}<h4 class="ui header">暂无可加入成员</h4>{% endif %}
@@ -30,16 +30,19 @@
                     {% for member in users %}
                         <div class="item">
                             <div class="right floated content">
-                                <a href="/invite/{{ group.pk }}/{{ member.pk }}"><div class="ui button">邀请</div></a>
+                                <a href="{% url 'invite_into_group' group.pk member.pk %}"><div class="ui button">邀请</div></a>
                             </div>
                             <img class="ui avatar image" src="/static/images/logo.png"/>
                             <div class="content">{{ member.username }}</div>
                         </div>
                     {% endfor %}
                 </div>
-            {% else %}
-                <h3 class="ui header">队伍已满</h3>
+            {% elif can_join %}
+                <div class="ui divider"></div>
+                <a href="{% url 'apply_into_group' group.pk %}"><button class="ui green button">申请加入队伍</button></a>
             {% endif %}
+        {% else %}
+            <h3 class="ui header">队伍已满</h3>
         {% endif %}
     </div>
 {% endblock %}

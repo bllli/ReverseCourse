@@ -9,7 +9,7 @@
         {% ifequal page_number  p.number %}
             <button class="ui disabled button">{{ page_number }}</button>
         {% else %}
-            <a href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}">
+            <a href="?page={{ page_number }}{% if query %}&query={{ query }}{% endif %}{% if course %}&course={{ course.pk }}{% endif %}">
                 <button class="ui button">{{ page_number }}</button>
             </a>
         {% endifequal %}

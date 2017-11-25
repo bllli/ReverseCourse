@@ -49,6 +49,7 @@ urlpatterns = [
     # invite 邀请
     url(r'^invite/', include([
         url(r'^(\d+)/(\d+)$', views.invite_into_group, name='invite_into_group'),
+        url(r'^apply/(\d+)/$', views.apply_into_group, name='apply_into_group'),
         url(r'^accept/(.*)$', views.accept_invite, name='accept_invite'),
         url(r'^refuse/(.*)$', views.refuse_invite, name='refuse_invite'),
     ])),

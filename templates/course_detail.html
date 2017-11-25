@@ -15,7 +15,7 @@
                 <div class="ui buttons">
                     <a href="{% url 'create_group' course.id %}"><button class="ui positive button">创建团队</button></a>
                     <div class="or" data-text="或"></div>
-                    <button class="ui primary button">加入团队</button>
+                    <a href="{% url 'groups' %}?course={{ course.id }}"><button class="ui primary button">加入团队</button></a>
                 </div>
             {% endif %}
         {% else %}
