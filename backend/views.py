@@ -105,27 +105,24 @@ def create_group(request, course_id):
 
 def groups(request):
     queryset = CourseGroup.objects.all()
-    query = request.GET.get('query') or None
-    course_id = request.GET.get('course') or None
-    course = None
+    query = request.GET.get('query', None)
+    course_id = request.GET.get('course', None)
+    params = {}
     if query:
+        params['query'] = query
         queryset = queryset.filter(name__contains=query)
     elif course_id:
-        course = get_object_or_404(Course, pk=course_id)
-        queryset = queryset.filter(belong=course)
+        params['course'] = get_object_or_404(Course, pk=course_id)
+        queryset = queryset.filter(belong=params['course'])
     p = Paginator(queryset, 5)
     page = request.GET.get('page') or 1
     try:
-        group_list = p.page(page)
+        params['p'] = p.page(page)
     except PageNotAnInteger:
-        group_list = p.page(1)
+        params['p'] = p.page(1)
     except EmptyPage:
-        group_list = p.page(p.num_pages)
-    return render(request, 'groups.html', {
-        'p': group_list,
-        'query': query,
-        'course': course,
-    })
+        params['p'] = p.page(p.num_pages)
+    return render(request, 'groups.html', params)
 
 
 def group_detail(request, group_id):
