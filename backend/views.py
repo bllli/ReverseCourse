@@ -70,7 +70,7 @@ def course_detail(request, course_id):
 
 def user_detail(request, username):
     form = LetterForm(request.POST or None)
-    user = User.objects.filter(username=username).first()
+    user = get_object_or_404(User, username=username)
     if request.user.is_authenticated() and form.is_valid():
         notify.send(request.user, recipient=user, verb='给你发了一封私信',
                     description=form.cleaned_data.get('content', None))
@@ -134,6 +134,8 @@ def group_detail(request, group_id):
             params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
         if request.user in User.objects.exclude(added_groups__belong_id=group.belong_id).all():
             params['can_join'] = True
+        else:
+            params['can_quit'] = True
     params['group'] = group
     return render(request, 'group_detail.html', params)
 
@@ -162,18 +164,36 @@ def invite_into_group(request, group_id, invitees_id):
 
 
 @login_required
-def apply_into_group(request, group_id):
+def apply_join_group(request, group_id):
     group = get_object_or_404(CourseGroup, pk=group_id)
-    if group in request.user.added_groups.all():
-        messages.error(request, '不好意思啊，你已经在同课程中别的群里了。')
-        return redirect('user_detail', request.user.pk)
-    code = InviteCode.generate(creator=request.user, invitee=group.creator,
-                               group=group, choice=InviteCode.APPLY_JOIN_GROUP)
-    notify.send(request.user, recipient=group.creator,
-                verb='申请加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
-                .format(group=group.name, g_id=group.pk),
-                target=group, description=code)
-    messages.success(request, '申请加入{g_name}成功!'.format(g_name=group.name))
+    current_group = request.user.added_groups.filter(belong=group.belong).first()
+    if current_group:
+        messages.error(request, '你已经在<a href="/groups/{g_id}/">{g_name}</a>里了。'
+                       .format(g_id=group.pk, g_name=group.name))
+    else:
+        code = InviteCode.generate(creator=request.user, invitee=group.creator,
+                                   group=group, choice=InviteCode.APPLY_JOIN_GROUP)
+        notify.send(request.user, recipient=group.creator,
+                    verb='申请加入<a href="/groups/{g_id}/" target="_blank">{group}</a>'
+                    .format(group=group.name, g_id=group.pk),
+                    target=group, description=code)
+        messages.success(request, '申请加入{g_name}成功!'.format(g_name=group.name))
+    return redirect('group_detail', group.pk)
+
+
+@login_required
+def apply_quit_group(request, group_id):
+    group = get_object_or_404(CourseGroup, pk=group_id)
+    if group not in request.user.added_groups.all():
+        messages.error(request, '你没在本课程内。')
+    else:
+        code = InviteCode.generate(creator=request.user, invitee=group.creator,
+                                   group=group, choice=InviteCode.APPLY_QUIT_GROUP)
+        notify.send(request.user, recipient=group.creator,
+                    verb='申请退出<a href="/groups/{g_id}/" target="_blank">{group}</a>'
+                    .format(group=group.name, g_id=group.pk),
+                    target=group, description=code)
+        messages.success(request, '申请退出{g_name}成功!'.format(g_name=group.name))
     return redirect('group_detail', group.pk)
 
 

@@ -39,7 +39,10 @@
                 </div>
             {% elif can_join %}
                 <div class="ui divider"></div>
-                <a href="{% url 'apply_into_group' group.pk %}"><button class="ui green button">申请加入队伍</button></a>
+                <a href="{% url 'apply_join_group' group.pk %}"><button class="ui green button">申请加入队伍</button></a>
+            {% elif can_quit %}
+                <div class="ui divider"></div>
+                <a href="{% url 'apply_quit_group' group.pk %}"><button class="ui red button">申请退出队伍</button></a>
             {% endif %}
         {% else %}
             <h3 class="ui header">队伍已满</h3>
