@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load markdown_deux_tags %}
 {% block title %}{{ course.title }} - 课程详情 - 翻转课堂{% endblock %}
 
 {% block container %}
@@ -8,10 +8,10 @@
         <div class="ui container">讲师: {{ course.author.username }}</div>
         <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}课程介绍</div>
         <div class="ui divider"></div>
-        <p>{{ course.detail.content_md }}</p>
+        <p>{{ course.detail | markdown }}</p>
         {% if request.user.is_authenticated %}
-            {% if group %}
-                你已加入<a href="{% url 'group_detail' group.id %}"><div class="ui green button">{{ group.name }}</div></a>
+            {% if in_group %}
+                你已加入<a href="{% url 'group_detail' in_group.id %}"><div class="ui green button">{{ in_group.name }}</div></a>
             {% else %}
                 <div class="ui buttons">
                     <a href="{% url 'create_group' course.id %}"><button class="ui positive button">创建团队</button></a>
@@ -25,12 +25,12 @@
             </div>
         {% endif %}
         <div class="ui divider"></div>
-        <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}教师提供的课程文章</div>
+        <div class="ui tiny header">{% if not course_article %}暂无{% endif %}教师提供的课程文章</div>
         <div class="ui divider"></div>
-        {% for article in articles %}
+        {% for article in course_article %}
             <div class="ui piled segment">
                 <div class="ui header">{{ article.title }}</div>
-                <p>{{ article.content_md }}</p>
+                <p>{{ article.content | markdown }}</p>
             </div>
         {% endfor %}
         <div class="ui tiny header">{% if not groups %}暂无{% endif %}课程团队</div>

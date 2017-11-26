@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'notifications',
+    'markdown_deux',
+    'pagedown',
     'backend'
 ]
 
@@ -137,3 +139,13 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 NOTIFICATIONS_SOFT_DELETE = True
+
+MARKDOWN_DEUX_STYLES = {
+    "default": {
+        "extras": {
+            "code-friendly": None,
+            "tables": None,
+        },
+        "safe_mode": "escape",
+    },
+}
