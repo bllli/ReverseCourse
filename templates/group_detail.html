@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load fun_filter %}
 
 {% block title %}{{ group.name }} - 团队 - 翻转课堂{% endblock %}
 
@@ -21,31 +22,31 @@
                 </div>
             {% endfor %}
         </div>
-        {% if group.members.count < group.belong.group_members_max %}
-            {% if is_creator %}
-                <h3 class="ui header">邀请加入队伍</h3>
-                <div class="ui divider"></div>
-                {% if not users %}<h4 class="ui header">暂无可加入成员</h4>{% endif %}
-                <div class="ui middle aligned divided list">
-                    {% for member in users %}
-                        <div class="item">
-                            <div class="right floated content">
-                                <a href="{% url 'invite_into_group' group.pk member.pk %}"><div class="ui button">邀请</div></a>
-                            </div>
-                            <img class="ui avatar image" src="/static/images/logo.png"/>
-                            <div class="content">{{ member.username }}</div>
+        {% if can_invite %}{# 如果能够发起邀请 #}
+            <h3 class="ui header">邀请加入队伍</h3>
+            <div class="ui divider"></div>
+            {% if not users %}<h4 class="ui header">暂无可加入成员</h4>{% endif %}
+            <div class="ui middle aligned divided list">
+                {% for member in users %}
+                    <div class="item">
+                        <div class="right floated content">
+                            {% if not group|add_arg:member|call:"already_invite" %}{# 未被邀请 #}
+                                <a href="{% url 'invite_into_group' group.pk member.pk %}"><div class="ui green button">邀请</div></a>
+                            {% else %}
+                                <div class="ui disabled button">已邀请</div>
+                            {% endif %}
                         </div>
-                    {% endfor %}
-                </div>
-            {% elif can_join %}
-                <div class="ui divider"></div>
-                <a href="{% url 'apply_join_group' group.pk %}"><button class="ui green button">申请加入队伍</button></a>
-            {% elif can_quit %}
-                <div class="ui divider"></div>
-                <a href="{% url 'apply_quit_group' group.pk %}"><button class="ui red button">申请退出队伍</button></a>
-            {% endif %}
-        {% else %}
-            <h3 class="ui header">队伍已满</h3>
+                        <img class="ui avatar image" src="/static/images/logo.png"/>
+                        <div class="content">{{ member.username }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif can_join %}{# 能够发起加入申请 #}
+            <div class="ui divider"></div>
+            <a href="{% url 'apply_join_group' group.pk %}"><button class="ui green button">申请加入队伍</button></a>
+        {% elif can_quit %}{# 能够发起退出申请 #}
+            <div class="ui divider"></div>
+            <a href="{% url 'apply_quit_group' group.pk %}"><button class="ui red button">申请退出队伍</button></a>
         {% endif %}
     </div>
 {% endblock %}

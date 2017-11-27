@@ -1,0 +1,20 @@
+@startuml
+actor "小红(队长)" as U0
+actor "小明(队长)" as U1
+actor "教师" as T
+control "Web 后台" as B
+database "数据库" as DB
+
+T -> B: 开启课程
+B -> DB:  储存课程信息
+
+== 课程创建结束，学生自由结组 ==
+...
+== 学生结组完毕 ==
+T -> B: 课程开始
+B -> DB: 课程开始\n学生团队locked
+== 课程开始，禁止学生团队改动 ==
+T -> B: 提交课程文章
+B -> DB: 存储课程文章
+
+@enduml

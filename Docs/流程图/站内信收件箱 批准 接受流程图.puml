@@ -1,0 +1,25 @@
+@startuml
+title 站内信收件箱/批准/接受流程图
+start
+if (需要__展示__的消息类型是
+邀请/申请)
+if (队长同意) then (yes)
+            if (该用户仍然可以
+            加入本团队) then (yes)
+                :将申请人加入该团队
+                __提醒__加入成功;
+                end
+            else (no)
+                :__提醒__队长
+                "申请人已加入其他团队";
+                end
+            endif
+        else (no)
+        :__告知__申请人
+        队长已拒绝你的申请;
+        end
+        endif
+elseif (普通站内信)
+
+endif
+@enduml

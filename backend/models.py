@@ -19,6 +19,7 @@ class Status:
     FINISHED = 4  # 已结束。此时应拒绝非管理员的修改操作。
     REJECTED = 5  # 被驳回，需要修改后重新发起请求
     ACCEPTED = 6  # 被接收
+    LOCKED = 7  # 已锁定
 
 
 class Course(models.Model):
@@ -61,7 +62,8 @@ class CourseGroup(models.Model):
     """团队Model"""
     STATUS = (
         (Status.CREATING, '创建中'),  # 团队创建中
-        (Status.FINISHED, '已完成'),  # 团队组建完成
+        (Status.FINISHED, '已完成'),  # 团队组建完成，拒绝其他用户申请加入
+        (Status.LOCKED, '已锁定'),  # 课程开始后禁止修改成员
     )
     name = models.CharField(max_length=100, verbose_name='小组名称')
 
@@ -90,6 +92,26 @@ class CourseGroup(models.Model):
     def leave(self, user: User):
         if self.in_group(user):
             self.members.remove(user)
+
+    def can_join_group(self, user: User) -> bool:
+        """确定指定用户能否加入团队"""
+        return True if self.status is Status.CREATING and \
+                       self.members.count() < self.belong.group_members_max and \
+                       user in User.objects.exclude(added_groups__belong=self.belong).all() else False
+
+    def can_leave_group(self, user: User) -> bool:
+        """确定指定用户能否退出团队"""
+        return True if user in self.members.all() and \
+                       self.status is not Status.LOCKED else False
+
+    def can_invite_user(self) -> bool:
+        """队长是否可以邀请别人"""
+        return True if self.status is not Status.LOCKED and\
+                       self.members.count() < self.belong.group_members_max else False
+
+    def already_invite(self, user: User) -> bool:
+        """已经发送过邀请"""
+        return True if user.notifications.filter(actor_object_id=self.creator.pk).unread() else False
 
 
 class CourseArticle(models.Model):

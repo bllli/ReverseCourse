@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'notifications',
     'markdown_deux',
     'pagedown',
+    'backend.templatetags',
     'backend'
 ]
 

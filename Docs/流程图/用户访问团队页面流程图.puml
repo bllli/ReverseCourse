@@ -1,0 +1,88 @@
+@startuml
+'skinparam activityFontSize 14
+'skinparam activityDiamondFontSize 14
+'skinparam titleFontSize 22
+
+title 用户访问团队页面流程图
+start
+:用户进入团队详情页面;
+if (能邀请吗？) then (yes)
+    if (已邀请过) then (yes)
+        :__展示__
+        已邀请过;
+        end
+    else (no)
+        :__展示__
+        可邀请人员列表(带分页)与邀请按钮;
+        :__点击__邀请按钮;
+    endif
+    if (被邀请人能够加入团队?) then (yes)
+        if (已邀请过?) then (yes)
+            :__提示__
+            已邀请过;
+            end
+        else (no)
+            :生成邀请记录
+            __告知__被邀请人;
+            stop
+        endif
+    else (no)
+        :__提醒__
+        用户已不可加入本团队;
+        end
+    endif
+elseif (能退出吗？) then (yes)
+    :__展示__
+    申请退出团队按钮;
+    :用户__点击__退出团队按钮;
+    if (用户可以退出) then (yes)
+        :生成申请记录
+        __告知__团队队长;
+        stop
+    else (no)
+        :__提醒__用户不可退出;
+        end
+    endif
+elseif (能加入吗？) then (yes)
+if (用户发送过申请) then (yes)
+    :__展示__"你已经发送过申请
+             请等待审核";
+    end
+else (no)
+    :__展示__申请加入按钮;
+    note left
+        __展示__:
+        在页面上展示按钮/提示文字
+    endnote
+    :用户__点击__申请加入按钮;
+    note left
+        点击按钮后跟随生成的url进行跳转
+        后台收到访问后进行进一步处理
+        ====
+        点击按钮前 前端Templates层面
+        点击按钮后 后端Views层面
+        都需要核验用户状态
+    endnote
+    if (该用户仍然可以
+    加入本团队) then (no)
+        :__提醒__用户无法加入;
+        note left
+        __提醒__:
+        页面跳转后，
+        在页面顶部弹出一个提示框。
+        endnote
+        end
+    else (yes)
+    :生成申请记录
+    __告知__队长申请情况;
+    note right
+    __告知__:
+    发送站内信
+    endnote
+    endif
+    stop
+endif
+else
+end
+endif
+@enduml

@@ -127,15 +127,15 @@ def groups(request):
 
 
 def group_detail(request, group_id):
-    group = CourseGroup.objects.filter(pk=group_id).first()
+    group = get_object_or_404(CourseGroup, pk=group_id)
     params = {}
     if request.user.is_authenticated():
-        if request.user == group.creator:
-            params['is_creator'] = True
+        if request.user == group.creator and group.can_invite_user():
+            params['can_invite'] = True
             params['users'] = User.objects.exclude(added_groups__belong_id=group.belong_id).all()
-        if request.user in User.objects.exclude(added_groups__belong_id=group.belong_id).all():
+        if group.can_join_group(request.user):
             params['can_join'] = True
-        else:
+        elif group.can_leave_group(request.user):
             params['can_quit'] = True
     params['group'] = group
     return render(request, 'group_detail.html', params)
@@ -186,7 +186,7 @@ def apply_join_group(request, group_id):
 def apply_quit_group(request, group_id):
     group = get_object_or_404(CourseGroup, pk=group_id)
     if group not in request.user.added_groups.all():
-        messages.error(request, '你没在本课程内。')
+        messages.error(request, '你没在本团队内。')
     else:
         code = Invite.generate(creator=request.user, invitee=group.creator,
                                group=group, choice=Invite.APPLY_QUIT_GROUP)
