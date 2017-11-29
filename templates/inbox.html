@@ -10,7 +10,7 @@
         </div>
         <div class="ui bottom attached tab segment active" data-tab="first">
             <div class="ui middle aligned divided list">
-                {% for un in unread %}
+                {% for un in notifications.unread %}
                     {% if un.target %}
                         <div class="item">
                             <div class="right floated content">
@@ -53,7 +53,7 @@
         </div>
         <div class="ui bottom attached tab segment" data-tab="second">
             <div class="ui middle aligned divided list">
-                {% for un in read %}
+                {% for un in notifications.read %}
                     <div class="item">
                         <div class="right floated content">
                             <a href="{% url 'notifications:delete' un.slug %}?next={% url 'inbox' %}">

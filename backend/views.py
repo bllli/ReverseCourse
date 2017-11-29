@@ -145,12 +145,10 @@ def group_detail(request, group_id):
 def invite_into_group(request, group_id, invitees_id):
     invitees = get_object_or_404(User, pk=invitees_id)
     group = get_object_or_404(CourseGroup, pk=group_id)
-    if group.creator != request.user:  # 只有队长才能邀请其他人
-        raise Http404('你谁啊?')
-    if invitees in User.objects.filter(added_groups__belong_id=group.belong_id).all():
-        messages.error(request, '不好意思啊，你邀请的人已经在同课程中别的群里了。')
+    if group.creator != request.user and group.can_join_group(invitees):  # 只有队长才能邀请其他人
+        messages.error(request, '邀请失败， 可能你邀请的人已经在同课程中别的群里了。')
     else:
-        if invitees.notifications.filter(actor_object_id=request.user.pk).unread():
+        if group.already_invite(invitees):
             messages.success(request, '已经邀请过{invitees}，请不要发送多条邀请。'.format(invitees=invitees))
         else:
             invite_code = Invite.generate(creator=request.user, invitee=invitees,
@@ -205,12 +203,12 @@ def accept_invite(request, str_code: str):
     if code.check_code(request.user):
         notification.mark_as_read()
         if code.choice is Invite.INVITE_USER_JOIN_GROUP:
-            if request.user in User.objects.filter(added_groups__belong=code.group.belong).all():
-                messages.success(request, '你已经加入了本课题下的另一个团队了')
-                return redirect('inbox')
-            code.group.join(request.user)
-            messages.success(request, '已加入{group_name}, 祝你学习愉快!'.format(group_name=code.group.name))
-            return redirect('group_detail', code.group.pk)
+            if not code.group.can_join_group(request.user):  # 能加进去
+                messages.success(request, '加入失败，团队成员已满或你已经加入了本课题下的另一个团队')
+            else:
+                code.group.join(request.user)
+                messages.success(request, '已加入{group_name}, 祝学习愉快!'.format(group_name=code.group.name))
+                return redirect('group_detail', code.group.pk)
         elif code.choice in Invite.APPLY:  # 申请类型code
             if code.choice is Invite.APPLY_QUIT_GROUP:
                 code.group.leave(code.creator)
@@ -236,11 +234,4 @@ def refuse_invite(request, code):
 @login_required
 def inbox(request):
     queryset = request.user.notifications
-
-    unread = queryset.unread()
-    read = queryset.read()
-
-    return render(request, 'inbox.html', {
-        'unread': unread,
-        'read': read,
-    })
+    return render(request, 'inbox.html', {'notifications': queryset})

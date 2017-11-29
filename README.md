@@ -22,3 +22,35 @@ Django
 
 - 数据展示
   - [ ] 课题中各小组评分汇总
+
+## 安装
+
+### Python3.6
+
+推荐使用[Anaconda](https://conda.io/docs/user-guide/install/index.html)
+
+conda env安装Python3.6
+
+创建 `conda create -n myenv python=3.6`  
+激活
+> On Windows, in your Anaconda Prompt, run `activate myenv`  
+> On macOS and Linux, in your Terminal Window, run `source activate myenv`
+
+退出
+> On Windows, in your Anaconda Prompt, run `deactivate`  
+> On macOS and Linux, in your Terminal Window, run `source deactivate`
+
+[官方教程在此](https://conda.io/docs/user-guide/tasks/manage-environments.html)
+
+### 包
+已激活conda env后(或者是Python3.6)
+`pip install -r requirements.txt`
+
+### 部署
+`python manage.py migrate`
+
+`python manage.py createsuperuser`
+
+### 运行
+
+`python manage.py runserver`

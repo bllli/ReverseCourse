@@ -13,28 +13,51 @@ entity User < 用户 > << Entity >>{
 
 entity Course <课程> << Entity >>{
     + title 课程题目
+    + status 课程状态
     + group_members_min 团队成员人数下限
     + group_members_max 团队成员人数上限
 }
 
 Course "*" -- "1" User: 发布
 
-entity Article <文章> << Entity >>{
+entity CourseArticle <课程文章> << Entity >>{
+    + status 状态
     + title 文章标题
-    + content_md 内容
+    + content 内容
+    + is_task_article 是否为任务文章
+    + deadline 上交截止日期
 }
 
-Article "1" -- "1" Course: (属于)课程详情
-Article "*" -- "1" Course: (属于)课程资料
-Article "*" -- "1" User: 发布
+CourseArticle "*" -- "1" Course: 课程资料
+CourseArticle "*" -- "1" User: 发布
 
 entity CourseGroup <团队> << Entity >>{
     + name 团队名
-    + locked 锁定标记
+    + status 团队状态
 }
 
-CourseGroup "*" -- "1" User: 创建
-CourseGroup "m" -- "n" User: 在内
+CourseGroup "*" -- "1" User: 创建(作为队长)
+CourseGroup "m" -- "n" User: 在内(作为队员)
 CourseGroup "*" -- "1" Course: 属于
+
+entity GroupArticle <团队文章> << Entity >>{
+    + content 文章内容
+    + status 文章状态
+    + submit_time 提交时间
+    + create_time 创建时间
+}
+
+CourseGroup "1" -- "*" GroupArticle: 发布
+CourseArticle "1" -- "*" GroupArticle: 属于
+
+entity Invite <邀请> << Entity >>{
+    + choice 邀请/申请类型
+    + code 随机邀请码
+    + group 要加入的队伍id
+    + course 要加入的课程id
+}
+
+Invite "*" -- "1" User: 发起
+Invite "*" -- "1" User: 收到
 
 @enduml
