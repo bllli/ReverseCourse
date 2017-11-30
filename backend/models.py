@@ -106,12 +106,12 @@ class CourseGroup(models.Model):
 
     def can_invite_user(self) -> bool:
         """队长是否可以邀请别人"""
-        return True if self.status is not Status.LOCKED and\
+        return True if self.status is not Status.LOCKED and \
                        self.members.count() < self.belong.group_members_max else False
 
     def already_invite(self, user: User) -> bool:
         """已经发送过邀请"""
-        return True if user.notifications.filter(actor_object_id=self.creator.pk).unread() else False
+        return True if user.notifications.filter(target_object_id=self.pk).unread() else False
 
 
 class CourseArticle(models.Model):

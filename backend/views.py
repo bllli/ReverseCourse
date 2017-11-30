@@ -98,10 +98,7 @@ def create_group(request, course_id):
             new_group.save()
             return redirect('group_detail', new_group.pk)
         messages.warning(request, '这个名字已经有人捷足先登了，换一个试试吧')
-
-    return render(request, 'group_create.html', {
-        'course': c,
-    })
+    return render(request, 'group_create.html', {'course': c})
 
 
 def groups(request):
