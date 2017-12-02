@@ -69,17 +69,15 @@
 </div>
 <div class="site_container">
     {% if messages %}
-        <div class="ui center list">
+        <div class="ui text container"><div class="ui center list">
             {% for message in messages %}
                 <div class="item">
-                    <div class="ui compact message transition">
-                        <i class="close icon"></i>
-                        <p>{{ message | safe }}</p>
-                    </div>
+                    <div class="ui fluid message transition"><i class="close icon"></i><p>{{ message | safe }}</p></div>
                 </div>
                 {#            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>#}
             {% endfor %}
-        </div>
+        </div></div>
+        <div class="ui hidden divider"></div>
     {% endif %}
     {% block container %}
         <p class="ui large">模板未定义</p>
