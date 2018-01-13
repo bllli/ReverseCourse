@@ -7,7 +7,7 @@
     <div class="ui text container">
         <h2 class="ui header">学生团队: {{ group.name }}</h2>
         <div class="ui divider"></div>
-        <h3 class="ui header">所属课题: <a href="{% url 'course_detail' group.belong.pk %}">{{ group.belong.title }}</a></h3>
+        <h3 class="ui header">所属课题: <a href="{% url 'course:detail' group.belong.pk %}">{{ group.belong.title }}</a></h3>
         <h3>组长: <a href="{% url 'user_detail' group.creator.username %}">{{ group.creator.username }}</a></h3>
         <h3 class="ui header">团队成员</h3>
         <div class="ui divider"></div>

@@ -9,6 +9,7 @@ from notifications.models import Notification
 
 from backend.models import Course, User, CourseGroup, Invite, Status
 from backend.forms import LoginForm, CreateGroupForm, LetterForm
+from backend.utils import get_form_error_msg
 
 
 def index(request):
@@ -19,18 +20,17 @@ def login(request):
     if request.user.is_authenticated():
         messages.warning(request, '用户 {username}, 你已经登陆'.format(username=request.user.username))
         return redirect('index')
-    form = LoginForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        username = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
+    login_form = LoginForm(request.POST or None)
+    if request.method == 'POST' and login_form.is_valid():
+        username = login_form.cleaned_data.get('username')
+        password = login_form.cleaned_data.get('password')
         user = auth.authenticate(username=username, password=password)
-        if user and user.is_active:
-            auth.login(request, user)
-            messages.success(request, '欢迎回来, {username}'.format(username=request.user.username))
-            return redirect('index')
-        else:
-            messages.error(request, '账号或密码错误')
-    return render(request, 'login.html', {'login_form': form})
+        auth.login(request, user)
+        messages.success(request, '欢迎回来, {username}'.format(username=request.user.username))
+        return redirect('index')
+    else:
+        messages.error(request, '账号或密码错误')
+    return render(request, 'login.html', {'login_form': login_form})
 
 
 @login_required
@@ -40,41 +40,12 @@ def logout(request):
     return redirect('index')
 
 
-def courses(request):
-    queryset = Course.objects.exclude(status=Status.CREATING)
-    query = request.GET.get('query') or None
-    if query:
-        queryset = queryset.filter(title__contains=query)
-    p = Paginator(queryset, 5)
-    page = request.GET.get('page') or 1
-    try:
-        course_list = p.page(page)
-    except PageNotAnInteger:
-        course_list = p.page(1)
-    except EmptyPage:
-        course_list = p.page(p.num_pages)
-    return render(request, 'courses.html', {
-        'p': course_list,
-        'query': query,
-    })
-
-
-def course_detail(request, course_id):
-    c = get_object_or_404(Course, pk=course_id)
-    return render(request, 'course_detail.html', {
-        'course': c,
-        'course_article': c.article_set.exclude(status=Status.CREATING).all(),
-        'in_group': request.user.added_groups.filter(belong=c).first() if request.user.is_authenticated() else None,
-        'groups': c.coursegroup_set.all(),
-    })
-
-
 def user_detail(request, username):
-    form = LetterForm(request.POST or None)
+    letter_form = LetterForm(request.POST or None)
     user = get_object_or_404(User, username=username)
-    if request.user.is_authenticated() and form.is_valid():
+    if request.user.is_authenticated() and letter_form.is_valid():
         notify.send(request.user, recipient=user, verb='给你发了一封私信',
-                    description=form.cleaned_data.get('content', None))
+                    description=letter_form.cleaned_data.get('content', None))
         messages.success(request, '发送成功')
         return redirect('user_detail', username)
     added_courses = [group.belong for group in user.added_groups.all()]
@@ -87,18 +58,17 @@ def user_detail(request, username):
 @login_required
 def create_group(request, course_id):
     form = CreateGroupForm(request.POST or None)
-    c = get_object_or_404(Course, pk=course_id)
-    if request.user.added_groups.filter(belong=c).first():
+    course = get_object_or_404(Course, pk=course_id)
+    if request.user.added_groups.filter(belong=course).first():
         raise Http404('别瞎试了, 你已经加入一个团队了')
     if request.POST and form.is_valid():
-        name = form.cleaned_data.get('name', None)
-        if not CourseGroup.objects.filter(name=name).all():
-            new_group = request.user.my_groups.create(name=name, belong=c)
-            new_group.members.add(request.user)
-            new_group.save()
-            return redirect('group_detail', new_group.pk)
-        messages.warning(request, '这个名字已经有人捷足先登了，换一个试试吧')
-    return render(request, 'group_create.html', {'course': c})
+        new_group = request.user.my_groups.create(name=form.cleaned_data.get('name'), belong=course)
+        new_group.members.add(request.user)
+        new_group.save()
+        return redirect('group_detail', new_group.pk)
+    else:
+        messages.warning(request, get_form_error_msg(form))
+    return render(request, 'group_create.html', {'course': course})
 
 
 def groups(request):

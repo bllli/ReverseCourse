@@ -6,7 +6,7 @@
     <div class="ui text container">
         <div class="ui huge header">团队列表</div>
         {% if course %}
-            <div class="ui header">查询属于<a href="{% url 'course_detail' course.pk %}" target="_blank">《{{ course.title }}》</a>的团队</div>
+            <div class="ui header">查询属于<a href="{% url 'course:detail' course.pk %}" target="_blank">《{{ course.title }}》</a>的团队</div>
         {% elif query %}
             <div class="ui header">查询关键字含有“{{ query }}”的团队</div>
         {% endif %}
