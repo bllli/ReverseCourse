@@ -9,6 +9,7 @@
         <div class="ui tiny header">{% if not course.detail %}暂无{% endif %}课程介绍</div>
         <div class="ui divider"></div>
         <p>{{ course.detail | markdown }}</p>
+        <div class="ui divider"></div>
         {% if request.user.is_authenticated %}
             {% if in_group %}
                 你已加入<a href="{% url 'group_detail' in_group.id %}"><div class="ui green button">{{ in_group.name }}</div></a>
@@ -26,15 +27,32 @@
         {% endif %}
         <div class="ui divider"></div>
         <div class="ui tiny header">{% if not course_article %}暂无{% endif %}教师提供的课程文章</div>
-        <div class="ui divider"></div>
         {% for article in course_article %}
             <div class="ui piled segment">
-                <div class="ui header">{{ article.title }}</div>
+                {% if article.is_task_article %}
+                    <a class="ui orange ribbon label">任务文章</a>
+                    {% if is_author_teacher %}
+                        <a class="ui big green top right attached label" href="{% url 'course:task_list' article.id %}">
+                            <i class="checkmark icon"></i> 10 / 20
+                        </a>
+                    {% elif in_group and article.uploaded_this_task %}
+                        <a class="ui big green top right attached label" href="{% url 'course:task_list' article.id %}">
+                            <i class="check circle outline icon"></i>已提交
+                        </a>
+                    {% elif in_group and not article.uploaded_this_task %}
+                        <a class="ui big red top right attached label" href="{% url 'course:task_list' article.id %}">
+                            <i class="arrow circle outline up icon"></i>去提交
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a class="ui blue ribbon label">普通文章</a>
+                {% endif %}
+                <span>{{ article.title }}</span>
                 <p>{{ article.content | markdown }}</p>
             </div>
         {% endfor %}
-        <div class="ui tiny header">{% if not groups %}暂无{% endif %}课程团队</div>
         <div class="ui divider"></div>
+        <div class="ui tiny header">{% if not groups %}暂无{% endif %}课程团队</div>
         {% for group in groups %}{% include 'pices/group_without_course.html' %}{% endfor %}
     </div>
 {% endblock %}

@@ -3,7 +3,7 @@ import random
 
 from django.db import models
 from django.db.models.query import QuerySet
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
@@ -20,6 +20,18 @@ class Status:
     REJECTED = 5  # 被驳回，需要修改后重新发起请求
     ACCEPTED = 6  # 被接收
     LOCKED = 7  # 已锁定
+
+
+class User(AbstractUser):
+    STUDENT = 1
+    TEACHER = 2
+    user_type = models.SmallIntegerField(choices=(
+        (STUDENT, '学生'),
+        (TEACHER, '教师'),
+    ), default=STUDENT, verbose_name='用户类型')
+
+    class Meta(AbstractUser.Meta):
+        swappable = 'AUTH_USER_MODEL'
 
 
 class Course(models.Model):
@@ -126,12 +138,12 @@ class CourseArticle(models.Model):
     title = models.CharField(max_length=200, verbose_name='文章标题')
     content = models.TextField(verbose_name='文章内容')
     author = models.ForeignKey(User, related_name='article_set', verbose_name='文章作者')
-    belong = models.ForeignKey(Course, related_name='article_set', null=True, blank=True)
+    belong = models.ForeignKey(Course, related_name='article_set', null=True, verbose_name='所属课程')
 
     status = models.SmallIntegerField(choices=STATUS, default=Status.CREATING, verbose_name='文章状态')
 
     is_task_article = models.BooleanField(default=False, verbose_name='任务文章')
-    deadline = models.DateField(null=True, default=None, blank=True, verbose_name='学生上交截止时间')
+    deadline = models.DateTimeField(null=True, default=None, blank=True, verbose_name='学生上交截止时间')
     create_date = models.DateTimeField(default=now, verbose_name='创建时间')
 
     def __str__(self):
@@ -151,7 +163,7 @@ class GroupArticle(models.Model):
     )
     content = models.TextField(verbose_name='文章内容')
 
-    status = models.SmallIntegerField(default=Status.CREATING, verbose_name='文章状态')
+    status = models.SmallIntegerField(choices=STATUS, default=Status.CREATING, verbose_name='文章状态')
 
     # 评分总计
     score = models.DecimalField(decimal_places=2, max_digits=5, default=100.0)
@@ -161,7 +173,7 @@ class GroupArticle(models.Model):
     belong = models.ForeignKey(CourseArticle, related_name='group_article_set')
 
     create_date = models.DateTimeField(default=now, verbose_name='创建时间')
-    submit_date = models.DateTimeField(default=None, verbose_name='提交时间')
+    submit_date = models.DateTimeField(auto_now_add=True, verbose_name='提交时间')
 
     def __str__(self):
         return '<GroupArticle: %s by %r>' % (self.belong.title, self.group.name)

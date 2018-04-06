@@ -26,7 +26,7 @@ class CreateGroupForm(forms.Form):
 
     def clean(self):
         name = self.cleaned_data.get('name', None)
-        if models.CourseGroup.objects.get(name=name):
+        if models.CourseGroup.objects.filter(name=name).exists():
             raise forms.ValidationError('这个名字已经有人捷足先登了，换一个试试吧')
 
 

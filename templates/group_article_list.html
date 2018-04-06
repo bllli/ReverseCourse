@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load markdown_deux_tags %}
+{% block title %}{{ course.title }} - 任务详情 - 翻转课堂{% endblock %}
+
+{% block container %}
+    <div class="ui text container">
+        <div class="ui large header"><a href="{% url 'course:detail' course.id %}">{{ course.title }}</a>
+            任务: {{ task.title }}</div>
+        截止日期: {{ task.deadline }}
+        <div class="ui divider"></div>
+        {% if request.user.is_authenticated  %}
+            {% if user_answer %}
+                <div class="ui divided items">
+                <div class="item">
+                    <div class="content">
+                        <span class="header"> 你所属<a>{{ user_answer.group.name }}</a>的作品 </span>
+                        <div class="meta">
+                            <span class="cinema">队长:{{ user_answer.group.creator.username }}</span>
+                            <span class="cinema">提交时间: {{ user_answer.submit_date }}</span>
+                        </div>
+                        <div class="description">
+                            <p>{{ user_answer.content | markdown }}</p>
+                        </div>
+                        <div class="extra">
+                            <div class="ui label">IMAX</div>
+                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="ui divider"></div>
+            {% elif user_group and user_group.creator is request.user %}
+                <div class="ui big header">提交作品</div>
+            {% endif %}
+        {% endif %}
+        <div class="ui big header">学生分队提交的作品</div>
+        {% for ga in other_answer %}
+            <div class="ui divided items">
+                <div class="item">
+                    <div class="content">
+                        <a class="header">{{ ga.group.name }} 的作品</a>
+                        <div class="meta">
+                            <span class="cinema">队长:{{ ga.group.creator.username }}</span>
+                            <span class="cinema">提交时间: {{ ga.submit_date }}</span>
+                        </div>
+                        <div class="description">
+                            <p>{{ ga.content | markdown }}</p>
+                        </div>
+                        <div class="extra">
+                            <div class="ui label">IMAX</div>
+                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
