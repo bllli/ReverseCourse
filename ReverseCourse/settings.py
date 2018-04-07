@@ -25,7 +25,7 @@ SECRET_KEY = 'ws$e%+t=_v#m-9g#xag084hlr-co#i49zxf+9u2bb+5xw&*cdp'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['recourse.gq']
 
 
 # Application definition
