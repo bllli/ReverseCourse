@@ -32,3 +32,7 @@ class CreateGroupForm(forms.Form):
 
 class LetterForm(forms.Form):
     content = forms.CharField(label='信件内容')
+
+
+class TaskForm(forms.Form):
+    content = forms.CharField(label='内容')

@@ -32,6 +32,13 @@
             {% elif user_group and user_group.creator is request.user %}
                 <div class="ui big header">提交作品</div>
             {% endif %}
+            {% if show_form %}
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit" value="Submit" />
+                </form>
+            {% endif %}
         {% endif %}
         <div class="ui big header">学生分队提交的作品</div>
         {% for ga in other_answer %}

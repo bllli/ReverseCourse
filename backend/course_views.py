@@ -1,6 +1,9 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 
+from backend.forms import TaskForm
 from backend.models import Course, Status, CourseArticle, User, GroupArticle, CourseGroup
 
 
@@ -47,7 +50,13 @@ def course_detail(request, course_id):
 def task_list(request, task_id):
     task = get_object_or_404(CourseArticle, pk=task_id)
     user_group, user_answer = None, None
+    if request.method == 'POST' and request.user.is_authenticated():
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data['content'])
+            return HttpResponseRedirect(reverse('course:task_list', args=[task_id]))
     if request.user.is_authenticated():
+        # request.user: User
         user_group = request.user.added_groups.filter(belong=task.belong).first()
         # user_group: CourseGroup
         user_answer = user_group.group_article_set.filter(belong=task).first()
@@ -60,6 +69,8 @@ def task_list(request, task_id):
         'task': task,
         'user_group': user_group,
         'user_answer': user_answer,
+        'show_form': True,
+        'form': TaskForm(),
         'other_answer': other_answer,
     })
 
