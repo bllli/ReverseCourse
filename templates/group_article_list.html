@@ -32,8 +32,7 @@
                                 {% endif %}
                                 </span>
                             </div>
-                            <div class="ui label"><i class="star outline icon"></i> 评价</div>
-                            <div class="ui label"><i class="star icon"></i> 已评价</div>
+
                         </div>
                     </div>
                 </div>
@@ -66,8 +65,16 @@
                             <p>{{ ga.content | markdown }}</p>
                         </div>
                         <div class="extra">
-                            <div class="ui label">IMAX</div>
-                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
+                            {% if ga.first_score %}
+                                <div class="ui blue label">
+                                    <i class="check circle outline icon"></i>已评价
+                                </div> {{ ga.first_score.score }} {{ ga.first_score.comment }}
+                            {% else %}
+                                <a class="ui red label" href="/admin/backend/grouparticle/{{ ga.id }}/change/">
+                                    <i class="star outline icon"></i> <span class="ui blue">去评价</span>
+                                </a>
+                                <form method="post"></form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

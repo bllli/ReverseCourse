@@ -80,32 +80,62 @@ class CourseAdmin(SaveModelMixin, PageDownOverrideMixin, admin.ModelAdmin):
 # class CourseArticleAdmin(SaveModelMixin, PageDownOverrideMixin, admin.ModelAdmin):
 #     pass
 
+class EvaluationInline(SaveModelMixin, admin.TabularInline):
+    model = Evaluation
+    extra = 0
+
+    verbose_name = '课程评价'
+    verbose_name_plural = verbose_name
+
+    readonly_fields = ('author', 'create_date')
+    exclude = ('delete', 'final')
+
+    def save_model(self, request, obj, form, change):
+        print('1231231')
+        obj.author = request.user
+        obj.save()
+
 
 @admin.register(GroupArticle)
 class GroupArticleAdmin(PageDownOverrideMixin, admin.ModelAdmin):
     # readonly_fields = ('group', 'create_date', 'submit_date', 'score', 'scoring_people')
+    inlines = (EvaluationInline,)
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
+        # queryset = GroupArticle.objects.all()
         if request.user.is_superuser:
             return queryset
-        return queryset.filter(group__in=request.user.my_groups.all())
+        if request.user.user_type == User.STUDENT:
+            return queryset.filter(group__in=request.user.my_groups.all())
+        if request.user.user_type == User.TEACHER:
+            return queryset.filter(group__belong__author=request.user)
 
-    def save_model(self, request, obj, form, change):
-        obj.group = obj.group or request.user.my_groups.filter(pk=obj.belong.pk).first()
-        obj.save()
+    def save_formset(self, request, form, formset, change):
+        # https://stackoverflow.com/questions/3048313/why-save-model-method-doesnt-work-in-admin-stackedinline
+        for f in formset.forms:
+            obj = f.instance
+            obj.author = request.user
+            obj.save()
+        formset.save()
 
-    def get_readonly_fields(self, request, obj:GroupArticle=None):
-        readonly_fields = ('create_date', 'submit_date', 'score', 'scoring_people')
+    def get_readonly_fields(self, request, obj: GroupArticle=None):
+        readonly_fields = ('create_date', 'submit_date')
+        request.user: User
         if request.user.is_superuser:
             return readonly_fields
         else:
             if obj and obj.belong.deadline < timezone.localtime():
                 readonly_fields += ('content', )
-            readonly_fields += ('group', 'belong')
+            elif request.user.user_type == User.TEACHER:
+                readonly_fields += ('content', )
+            elif request.user.user_type == User.STUDENT:
+                # readonly_fields += ()
+                pass
+            readonly_fields += ('group', )
         return readonly_fields
 
-    exclude = ('status', )
+    exclude = ('status', 'belong', 'score', 'scoring_people')
 
 
 @admin.register(CourseGroup)

@@ -193,6 +193,10 @@ class GroupArticle(models.Model):
         self.status = Status.SUBMITTED
         self.submit_date = now()
 
+    @property
+    def first_score(self):
+        return self.evaluation_set.first()
+
 
 class Evaluation(models.Model):
     """评价Model

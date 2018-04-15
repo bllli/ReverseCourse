@@ -14,11 +14,13 @@
             {% if in_group %}
                 你已加入<a href="{% url 'group_detail' in_group.id %}"><div class="ui green button">{{ in_group.name }}</div></a>
             {% else %}
+                {% if request.user.user_type == request.user.STUDENT %}
                 <div class="ui buttons">
                     <a href="{% url 'create_group' course.id %}"><button class="ui positive button">创建团队</button></a>
                     <div class="or" data-text="或"></div>
                     <a href="{% url 'groups' %}?course={{ course.id }}"><button class="ui primary button">加入团队</button></a>
                 </div>
+                {% endif %}
             {% endif %}
         {% else %}
             <div class="ui warning message">登陆后即可组队、参与课程
@@ -32,8 +34,8 @@
                 {% if article.is_task_article %}
                     <a class="ui orange ribbon label">任务文章</a>
                     {% if is_author_teacher %}
-                        <a class="ui big green top right attached label" href="{% url 'course:task_list' article.id %}">
-                            <i class="checkmark icon"></i> 10 / 20
+                        <a class="ui green top right attached label" href="{% url 'course:task_list' article.id %}">
+                            <i class="checkmark icon"></i> 查看学生提交
                         </a>
                     {% elif in_group and article.uploaded_this_task %}
                         <a class="ui big green top right attached label" href="{% url 'course:task_list' article.id %}">

@@ -25,3 +25,8 @@ class LetterForm(forms.Form):
 
 class TaskForm(forms.Form):
     content = forms.CharField(label='内容')
+
+
+class ScoreForm(forms.Form):
+    comment = forms.CharField(label='评价内容')
+    score = forms.IntegerField(label='得分')
