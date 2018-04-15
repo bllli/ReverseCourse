@@ -20,16 +20,17 @@ def login(request):
     if request.user.is_authenticated():
         messages.warning(request, '用户 {username}, 你已经登陆'.format(username=request.user.username))
         return redirect('index')
-    login_form = LoginForm(request.POST or None)
+    login_form = LoginForm(request.POST.dict() or None)
     if request.method == 'POST' and login_form.is_valid():
         username = login_form.cleaned_data.get('username')
         password = login_form.cleaned_data.get('password')
         user = auth.authenticate(username=username, password=password)
-        auth.login(request, user)
-        messages.success(request, '欢迎回来, {username}'.format(username=request.user.username))
-        return redirect('index')
-    else:
-        messages.error(request, '账号或密码错误')
+        if user:
+            auth.login(request, user)
+            messages.success(request, '欢迎回来, {username}'.format(username=request.user.username))
+            return redirect('index')
+        else:
+            messages.error(request, '账号或密码错误')
     return render(request, 'login.html', {'login_form': login_form})
 
 

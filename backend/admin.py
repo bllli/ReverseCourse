@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.utils import timezone
 from pagedown.widgets import AdminPagedownWidget
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 
 from .models import Course, CourseGroup, GroupArticle, CourseArticle, Evaluation, User
@@ -10,10 +12,7 @@ from .models import Course, CourseGroup, GroupArticle, CourseArticle, Evaluation
 
 class SaveModelMixin:
     def save_model(self, request, obj, form, change):
-        try:
-            obj.author
-        except:
-            obj.author = request.user
+        obj.author = request.user
         obj.save()
 
 
@@ -35,13 +34,21 @@ class CourseArticleInline(SaveModelMixin, admin.TabularInline):
                 readonly = ('create_date', 'author')
             return self.readonly_fields + readonly
         return self.readonly_fields
+
     verbose_name = '课程文章'
     verbose_name_plural = verbose_name
+
+    def save_model(self, request, obj, form, change):
+        obj.author = request.user
+        obj.save()
 
 
 class CourseGroupInline(admin.TabularInline):
     model = CourseGroup
     extra = 0
+
+    verbose_name = '课程小组'
+    verbose_name_plural = verbose_name
 
 
 @admin.register(Course)
@@ -56,13 +63,11 @@ class CourseAdmin(SaveModelMixin, PageDownOverrideMixin, admin.ModelAdmin):
     inlines = (CourseArticleInline, CourseGroupInline)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # editing an existing object
-            if request.user.is_superuser:
-                readonly = ('create_date', )
-            else:
-                readonly = ('create_date', 'author')
-            return self.readonly_fields + readonly
-        return self.readonly_fields
+        if request.user.is_superuser:
+            readonly = ('create_date', )
+        else:
+            readonly = ('create_date', 'author')
+        return self.readonly_fields + readonly
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -78,17 +83,29 @@ class CourseAdmin(SaveModelMixin, PageDownOverrideMixin, admin.ModelAdmin):
 
 @admin.register(GroupArticle)
 class GroupArticleAdmin(PageDownOverrideMixin, admin.ModelAdmin):
-    readonly_fields = ('group', 'create_date', 'submit_date', 'score', 'scoring_people')
+    # readonly_fields = ('group', 'create_date', 'submit_date', 'score', 'scoring_people')
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         if request.user.is_superuser:
             return queryset
-        return queryset.filter(group__in=request.user.added_groups.all())
+        return queryset.filter(group__in=request.user.my_groups.all())
 
     def save_model(self, request, obj, form, change):
-        obj.group = request.user.added_groups.filter(pk=obj.belong.pk).first()
+        obj.group = obj.group or request.user.my_groups.filter(pk=obj.belong.pk).first()
         obj.save()
+
+    def get_readonly_fields(self, request, obj:GroupArticle=None):
+        readonly_fields = ('create_date', 'submit_date', 'score', 'scoring_people')
+        if request.user.is_superuser:
+            return readonly_fields
+        else:
+            if obj and obj.belong.deadline < timezone.localtime():
+                readonly_fields += ('content', )
+            readonly_fields += ('group', 'belong')
+        return readonly_fields
+
+    exclude = ('status', )
 
 
 @admin.register(CourseGroup)
@@ -111,6 +128,16 @@ class CourseGroupAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'user_type')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                       'groups', 'user_permissions')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+
+    list_display = ('username', 'email', 'is_staff', 'user_type')
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # editing an existing object

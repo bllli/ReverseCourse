@@ -137,7 +137,7 @@ class CourseArticle(models.Model):
     )
     title = models.CharField(max_length=200, verbose_name='文章标题')
     content = models.TextField(verbose_name='文章内容')
-    author = models.ForeignKey(User, related_name='article_set', verbose_name='文章作者')
+    author = models.ForeignKey(User, related_name='article_set', verbose_name='文章作者', null=True)
     belong = models.ForeignKey(Course, related_name='article_set', null=True, verbose_name='所属课程')
 
     status = models.SmallIntegerField(choices=STATUS, default=Status.CREATING, verbose_name='文章状态')

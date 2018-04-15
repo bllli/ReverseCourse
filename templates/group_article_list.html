@@ -6,7 +6,7 @@
     <div class="ui text container">
         <div class="ui large header"><a href="{% url 'course:detail' course.id %}">{{ course.title }}</a>
             任务: {{ task.title }}</div>
-        截止日期: {{ task.deadline }}
+        截止日期: {{ task.deadline }}  {% if is_deadline %} (已截止) {% endif %}
         <div class="ui divider"></div>
         {% if request.user.is_authenticated  %}
             {% if user_answer %}
@@ -22,8 +22,18 @@
                             <p>{{ user_answer.content | markdown }}</p>
                         </div>
                         <div class="extra">
-                            <div class="ui label">IMAX</div>
-                            <div class="ui label"><i class="globe icon"></i> Additional Languages</div>
+                            <div class="ui label">
+                                <i class="pencil alternate icon"></i>
+                                <span>
+                                {% if is_deadline %}
+                                    已提交
+                                {% else %}
+                                    <a href="/admin/backend/grouparticle/{{ user_answer.id }}/change/">修改</a>
+                                {% endif %}
+                                </span>
+                            </div>
+                            <div class="ui label"><i class="star outline icon"></i> 评价</div>
+                            <div class="ui label"><i class="star icon"></i> 已评价</div>
                         </div>
                     </div>
                 </div>
@@ -32,7 +42,7 @@
             {% elif user_group and user_group.creator is request.user %}
                 <div class="ui big header">提交作品</div>
             {% endif %}
-            {% if show_form %}
+            {% if show_form and not is_deadline %}
                 <form action="" method="post">
                     {% csrf_token %}
                     {{ form }}
@@ -40,7 +50,9 @@
                 </form>
             {% endif %}
         {% endif %}
-        <div class="ui big header">学生分队提交的作品</div>
+        {% if other_answer %}
+            <div class="ui big header">学生分队提交的作品</div>
+        {% endif %}
         {% for ga in other_answer %}
             <div class="ui divided items">
                 <div class="item">
