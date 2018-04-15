@@ -23,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ws$e%+t=_v#m-9g#xag084hlr-co#i49zxf+9u2bb+5xw&*cdp'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-# ALLOWED_HOSTS = ['recourse.gq', '127.0.0.1']
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['recourse.gq', '127.0.0.1']
+# ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = ('127.0.0.1', )
 
