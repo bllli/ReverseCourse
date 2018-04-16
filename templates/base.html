@@ -88,33 +88,30 @@
         <div class="ui stackable inverted divided equal height stackable grid">
             <div class="three wide column">
                 <h4 class="ui inverted header">
-                    About
+                    关于
                 </h4>
                 <div class="ui inverted link list">
-                    <a class="item" href="homepage.html#"> Sitemap</a><a class="item" href="homepage.html#"> Contact
-                    Us</a><a class="item" href="homepage.html#"> Religious Ceremonies</a><a class="item"
-                                                                                            href="homepage.html#">
-                    Gazebo Plans</a>
+                    <a class="item" href="#"> 网站地图</a>
+                    <a class="item" href="#"> 关于我们</a>
                 </div>
             </div>
-            <div class="three wide column">
-                <h4 class="ui inverted header">
-                    Services
-                </h4>
-                <div class="ui inverted link list">
-                    <a class="item" href="homepage.html#"> Banana Pre-Order</a><a class="item"
-                                                                                  href="homepage.html#"> DNA FAQ</a><a
-                        class="item" href="homepage.html#"> How To Access</a><a class="item" href="homepage.html#">
-                    Favorite X-Men</a>
-                </div>
-            </div>
+{#            <div class="three wide column">#}
+{#                <h4 class="ui inverted header">#}
+{#                    Services#}
+{#                </h4>#}
+{#                <div class="ui inverted link list">#}
+{#                    <a class="item" href="homepage.html#"> How To Access</a>#}
+{#                    <a class="item" href="homepage.html#"> Favorite X-Men</a>#}
+{#                </div>#}
+{#            </div>#}
             <div class="seven wide column">
                 <h4 class="ui inverted header">
-                    Footer Header
+                    ReverseCourse
                 </h4>
-                <p>
-                    Extra space for a call to action inside the footer that could help re-engage users.
-                </p>
+                <div class="ui inverted link list">
+                    <a class="item" href="https://bllli.cn" target="_blank">My Blog</a>
+                    <a class="item" href="https://github.com/bllli/ReverseCourse/tree/dev" target="_blank">Github</a>
+                </div>
             </div>
         </div>
     </div>
@@ -133,7 +130,7 @@
             return
         }
         if (search_type === 'course') {
-            window.location = '/courses/?query=' + val;
+            window.location = '/course/?query=' + val;
         }
         else if (search_type === 'group') {
             window.location = '/groups/?query=' + val;
